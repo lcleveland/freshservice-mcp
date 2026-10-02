@@ -1,0 +1,3 @@
+# Our own MCP instead of the claude.ai Freshservice connector
+
+The claude.ai Freshservice connector already exists, but it has a hard monthly action budget, can't sweep or aggregate large result sets, and leaves out much of the v2 API (problems, changes, releases, projects, CMDB relationships, time entries, and more). We build our own Go MCP on the same skeleton as ninjaone-mcp, netbox-mcp and netskope-mcp. It talks to the REST API directly with a dedicated agent's API key, which removes the budget, allows server-side paging and summaries, and keeps one Nix and ops model and one write-gating model across all our MCPs. In exchange, we maintain an API client ourselves and keep its coverage current.
