@@ -29,8 +29,13 @@ type Config struct {
 	Groups           []string        // tool groups to register; empty means all
 	MaxBuckets       int             // most API calls one summary may fan out to
 	Allow            map[string]bool // capability -> enabled
-	RequestTimeout   time.Duration
-	LogLevel         slog.Level
+
+	HTTP           bool
+	Addr           string
+	Path           string
+	HTTPAuthToken  string
+	RequestTimeout time.Duration
+	LogLevel       slog.Level
 
 	ShowVersion bool
 }
@@ -48,6 +53,9 @@ func (c *Config) LogValue() slog.Value {
 		slog.Int("max_records", c.MaxRecords),
 		slog.Any("groups", c.Groups),
 		slog.Any("capabilities", c.Enabled()),
+		slog.Bool("http", c.HTTP),
+		slog.String("addr", c.Addr),
+		slog.Bool("http_auth_set", c.HTTPAuthToken != ""),
 	)
 }
 
@@ -80,7 +88,8 @@ func Parse(args []string, getenv func(string) string) (*Config, []string, error)
 	var (
 		c                         Config
 		domain, keyFile, logLevel string
-		groups                    string
+		groups, hauth             string
+		stdio                     bool
 		warnings                  []string
 	)
 	fs := flag.NewFlagSet("freshservice-mcp", flag.ContinueOnError)
@@ -97,6 +106,11 @@ func Parse(args []string, getenv func(string) string) (*Config, []string, error)
 	fs.StringVar(&groups, "tool-groups", getenv("FRESHSERVICE_TOOL_GROUPS"), "comma-separated tool groups to enable (default all): "+strings.Join(Groups, ",")+" (env FRESHSERVICE_TOOL_GROUPS)")
 	fs.DurationVar(&c.RequestTimeout, "request-timeout", 30*time.Second, "per-request timeout to Freshservice")
 	fs.StringVar(&logLevel, "log-level", or(getenv("FRESHSERVICE_MCP_LOG_LEVEL"), "info"), "debug|info|warn|error (env FRESHSERVICE_MCP_LOG_LEVEL)")
+	fs.BoolVar(&stdio, "stdio", false, "serve over stdio (default)")
+	fs.BoolVar(&c.HTTP, "http", false, "serve over streamable HTTP")
+	fs.StringVar(&c.Addr, "addr", "127.0.0.1:8234", "HTTP listen address")
+	fs.StringVar(&c.Path, "path", "/mcp", "HTTP MCP endpoint path")
+	fs.StringVar(&hauth, "http-auth-token-file", getenv("FRESHSERVICE_MCP_HTTP_AUTH_TOKEN_FILE"), "file holding the bearer token HTTP clients must send (env FRESHSERVICE_MCP_HTTP_AUTH_TOKEN_FILE)")
 	fs.BoolVar(&c.ShowVersion, "version", false, "print version and exit")
 	if err := fs.Parse(args); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
@@ -111,6 +125,9 @@ func Parse(args []string, getenv func(string) string) (*Config, []string, error)
 	}
 	if fs.NArg() > 0 {
 		return nil, nil, fmt.Errorf("unexpected argument %q", fs.Arg(0))
+	}
+	if stdio && c.HTTP {
+		return nil, nil, errors.New("--stdio and --http are mutually exclusive")
 	}
 	c.Allow = map[string]bool{}
 	for name, on := range allow {
@@ -153,6 +170,27 @@ func Parse(args []string, getenv func(string) string) (*Config, []string, error)
 	}
 	if err != nil {
 		return nil, nil, err
+	}
+
+	if c.HTTP {
+		if !strings.HasPrefix(c.Path, "/") {
+			return nil, nil, errors.New("--path must start with /")
+		}
+		credDir := getenv("CREDENTIALS_DIRECTORY")
+		switch {
+		case hauth != "":
+			c.HTTPAuthToken, err = readSecret(hauth)
+		case credDir != "":
+			if s, e := readSecret(filepath.Join(credDir, "http-auth-token")); e == nil {
+				c.HTTPAuthToken = s
+			}
+		}
+		if err != nil {
+			return nil, nil, err
+		}
+		if c.HTTPAuthToken == "" && !loopback(c.Addr) {
+			return nil, nil, fmt.Errorf("refusing to listen on non-loopback %s without --http-auth-token-file", c.Addr)
+		}
 	}
 	return &c, warnings, nil
 }

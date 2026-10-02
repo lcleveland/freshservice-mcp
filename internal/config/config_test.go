@@ -73,3 +73,20 @@ func TestLogValueHidesKey(t *testing.T) {
 		t.Fatal("key leaked into LogValue")
 	}
 }
+
+func TestHTTPNeedsTokenOffLoopback(t *testing.T) {
+	base := map[string]string{"FRESHSERVICE_DOMAIN": "acme", "FRESHSERVICE_API_KEY_FILE": keyFile(t, "k")}
+	if _, _, err := Parse([]string{"--http", "--addr", "0.0.0.0:8234"}, env(base)); err == nil {
+		t.Error("non-loopback without token accepted")
+	}
+	c, _, err := Parse([]string{"--http", "--addr", "0.0.0.0:8234", "--http-auth-token-file", keyFile(t, "tok\n")}, env(base))
+	if err != nil || c.HTTPAuthToken != "tok" {
+		t.Errorf("with token: %v %v", c, err)
+	}
+	if _, _, err := Parse([]string{"--http"}, env(base)); err != nil {
+		t.Errorf("loopback default: %v", err)
+	}
+	if _, _, err := Parse([]string{"--http", "--stdio"}, env(base)); err == nil {
+		t.Error("--http --stdio accepted")
+	}
+}
