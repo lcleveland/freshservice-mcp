@@ -24,10 +24,11 @@ import (
 type Config struct {
 	BaseURL          *url.URL // https://<sub>.freshservice.com, no /api/v2
 	APIKey           string
-	DefaultWorkspace string   // id or name; empty means the primary workspace
-	MaxRecords       int      // cap on records one list call may return
-	Groups           []string // tool groups to register; empty means all
-	MaxBuckets       int      // most API calls one summary may fan out to
+	DefaultWorkspace string          // id or name; empty means the primary workspace
+	MaxRecords       int             // cap on records one list call may return
+	Groups           []string        // tool groups to register; empty means all
+	MaxBuckets       int             // most API calls one summary may fan out to
+	Allow            map[string]bool // capability -> enabled
 	RequestTimeout   time.Duration
 	LogLevel         slog.Level
 
@@ -46,11 +47,27 @@ func (c *Config) LogValue() slog.Value {
 		slog.String("default_workspace", c.DefaultWorkspace),
 		slog.Int("max_records", c.MaxRecords),
 		slog.Any("groups", c.Groups),
+		slog.Any("capabilities", c.Enabled()),
 	)
 }
 
+// Capabilities are the opt-in write classes, each enabled by --allow-<name>.
+// See docs/adr/0002-capability-map.md.
+var Capabilities = []string{"tickets", "ticket-replies", "itil", "assets", "knowledge", "projects", "people", "approvals", "ops", "custom-objects"}
+
 // Groups are the tool groups --tool-groups may name. core is always on.
 var Groups = []string{"core", "itil", "assets", "knowledge", "catalog", "projects", "ops", "custom"}
+
+// Enabled lists the enabled capabilities, in declaration order.
+func (c *Config) Enabled() []string {
+	var on []string
+	for _, n := range Capabilities {
+		if c.Allow[n] {
+			on = append(on, n)
+		}
+	}
+	return on
+}
 
 // GroupOn reports whether a tool group is on.
 func (c *Config) GroupOn(group string) bool {
@@ -68,6 +85,10 @@ func Parse(args []string, getenv func(string) string) (*Config, []string, error)
 	)
 	fs := flag.NewFlagSet("freshservice-mcp", flag.ContinueOnError)
 	fs.SetOutput(io.Discard)
+	allow := map[string]*bool{}
+	for _, name := range Capabilities {
+		allow[name] = fs.Bool("allow-"+name, false, "enable the "+name+" write capability")
+	}
 	fs.StringVar(&domain, "domain", getenv("FRESHSERVICE_DOMAIN"), "Freshservice domain: acme, acme.freshservice.com or a full URL (env FRESHSERVICE_DOMAIN)")
 	fs.StringVar(&keyFile, "api-key-file", getenv("FRESHSERVICE_API_KEY_FILE"), "file holding the agent API key (env FRESHSERVICE_API_KEY_FILE)")
 	fs.StringVar(&c.DefaultWorkspace, "default-workspace", getenv("FRESHSERVICE_DEFAULT_WORKSPACE"), "workspace id or name used when a call names none (default: the primary workspace) (env FRESHSERVICE_DEFAULT_WORKSPACE)")
@@ -90,6 +111,10 @@ func Parse(args []string, getenv func(string) string) (*Config, []string, error)
 	}
 	if fs.NArg() > 0 {
 		return nil, nil, fmt.Errorf("unexpected argument %q", fs.Arg(0))
+	}
+	c.Allow = map[string]bool{}
+	for name, on := range allow {
+		c.Allow[name] = *on
 	}
 	if err := c.LogLevel.UnmarshalText([]byte(logLevel)); err != nil {
 		return nil, nil, fmt.Errorf("--log-level: %w", err)

@@ -25,10 +25,32 @@ type Input struct {
 	From      string         `json:"from,omitempty" jsonschema:"trend: first day, YYYY-MM-DD"`
 	To        string         `json:"to,omitempty" jsonschema:"trend: last day, YYYY-MM-DD"`
 	Interval  string         `json:"interval,omitempty" jsonschema:"trend: day (default) or week"`
+	Body      any            `json:"body,omitempty" jsonschema:"JSON body for actions that take one, in Freshservice's field names"`
+	Reason    string         `json:"reason,omitempty" jsonschema:"required for writes: why, recorded in the audit log"`
+	Confirm   string         `json:"confirm,omitempty" jsonschema:"actions that need it: the record's subject or name, exactly, to prove it is the one you mean"`
 }
 
+// views filters a tool's actions to those the operator enabled.
+func (d Deps) views(t Tool) []View {
+	var vs []View
+	for _, v := range t.Views {
+		if v.write() && !d.Config.Allow[v.Capability] {
+			continue
+		}
+		vs = append(vs, v)
+	}
+	return vs
+}
+
+// registerTool enforces the capability flags three times: the action enum
+// omits disabled actions, the description never mentions them, and the
+// handler refuses them. Only the last is load-bearing; the first two stop the
+// model trying.
 func registerTool(s *mcp.Server, d Deps, t Tool) error {
-	views := t.Views
+	views := d.views(t)
+	if len(views) == 0 {
+		return nil
+	}
 	schema, err := jsonschema.For[Input](nil)
 	if err != nil {
 		return err
@@ -49,6 +71,16 @@ func registerTool(s *mcp.Server, d Deps, t Tool) error {
 			delete(schema.Properties, field)
 		}
 	}
+	writes := slices.ContainsFunc(views, View.write)
+	if !writes {
+		delete(schema.Properties, "reason")
+	}
+	if !slices.ContainsFunc(views, func(v View) bool { return v.Body }) {
+		delete(schema.Properties, "body")
+	}
+	if !slices.ContainsFunc(views, func(v View) bool { return v.Confirm != "" }) {
+		delete(schema.Properties, "confirm")
+	}
 	if !slices.ContainsFunc(views, func(v View) bool { return v.WS != WSNone }) {
 		delete(schema.Properties, "workspace")
 	} else {
@@ -60,11 +92,19 @@ func registerTool(s *mcp.Server, d Deps, t Tool) error {
 		Title:       t.Title,
 		Description: t.Description + help(views),
 		InputSchema: schema,
-		Annotations: &mcp.ToolAnnotations{ReadOnlyHint: true, OpenWorldHint: new(true)},
+		Annotations: &mcp.ToolAnnotations{
+			ReadOnlyHint:    !writes,
+			DestructiveHint: new(slices.ContainsFunc(views, func(v View) bool { return v.Destructive })),
+			OpenWorldHint:   new(true),
+		},
 	}, func(ctx context.Context, _ *mcp.CallToolRequest, in Input) (*mcp.CallToolResult, any, error) {
 		i := slices.IndexFunc(views, func(v View) bool { return v.Action == in.Action })
 		if i < 0 {
 			return nil, nil, fmt.Errorf("action %q is not available on %s (available: %s)", in.Action, t.Name, strings.Join(names(views), ", "))
+		}
+		if views[i].write() {
+			out, err := d.write(ctx, t.Name, views[i], in)
+			return nil, out, err
 		}
 		if views[i].Summary != "" {
 			out, err := d.summary(ctx, t.Name, views[i], in)
@@ -83,6 +123,9 @@ func help(views []View) string {
 		b.WriteString("\n- " + v.Action + ": " + v.Help)
 	}
 	b.WriteString("\n\nLists return brief items plus custom_fields (pass fields for others) and next_cursor when there is more; pass it back as cursor.")
+	if slices.ContainsFunc(views, View.write) {
+		b.WriteString(" Writes require reason (audit-logged) and are never retried automatically. Creating a workspace-scoped record requires workspace.")
+	}
 	return b.String()
 }
 

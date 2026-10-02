@@ -1,5 +1,7 @@
 package tools
 
+import "slices"
+
 // Tool is one first-class MCP tool: a set of actions over Freshservice
 // endpoints. Adding an endpoint is adding a View; there is no per-endpoint
 // handler code.
@@ -36,6 +38,16 @@ type View struct {
 	AllQuery   string // query meaning "everything", for filters that require one
 	ScanPath   string
 	FieldsPath string // form fields whose choices give group_by its buckets
+
+	// Writes. A view with a Capability is a write; every write needs reason.
+	Capability  string
+	Body        bool     // takes the body input
+	Require     []string // body keys that must be present
+	Create      bool     // creates a record: a scoped (WS) create needs an explicit workspace
+	Confirm     string   // confirm must equal this field of the record at ConfirmPath
+	ConfirmPath string   // GET path of the record to confirm against (default: Path)
+	ConfirmIf   string   // only confirm when the body has this key
+	Destructive bool
 }
 
 // WSMode is how a view takes a workspace.
@@ -47,6 +59,8 @@ const (
 	WSGlobal               // workspace_id; "all" sends 1 (global)
 	WSOne                  // workspace_id; "all" is not possible
 )
+
+func (v View) write() bool { return v.Capability != "" }
 
 func (v View) method() string {
 	if v.Method == "" {
@@ -60,6 +74,9 @@ func Tools() []Tool {
 	var all []Tool
 	for _, t := range [][]Tool{coreTools, readTools} {
 		all = append(all, t...)
+	}
+	for i := range all {
+		all[i].Views = append(slices.Clip(all[i].Views), writeViews[all[i].Name]...)
 	}
 	return all
 }

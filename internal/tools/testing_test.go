@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -19,6 +20,11 @@ import (
 // session starts a fake Freshservice (h) and an in-memory MCP client/server
 // pair. A nil h answers the workspace and classic-asset probes.
 func session(t *testing.T, cfg *config.Config, h http.HandlerFunc) *mcp.ClientSession {
+	t.Helper()
+	return sessionLog(t, cfg, nil, h)
+}
+
+func sessionLog(t *testing.T, cfg *config.Config, log *slog.Logger, h http.HandlerFunc) *mcp.ClientSession {
 	t.Helper()
 	if h == nil {
 		h = func(w http.ResponseWriter, r *http.Request) {
@@ -42,11 +48,14 @@ func session(t *testing.T, cfg *config.Config, h http.HandlerFunc) *mcp.ClientSe
 	if cfg.MaxBuckets == 0 {
 		cfg.MaxBuckets = 60
 	}
+	if cfg.Allow == nil {
+		cfg.Allow = map[string]bool{}
+	}
 	c := freshservice.New(u, "key", srv.Client(), nil)
 	c.Attempts, c.BaseDelay = 1, time.Millisecond
 
 	s := mcp.NewServer(&mcp.Implementation{Name: "test"}, nil)
-	Register(s, Deps{Client: c, Config: cfg})
+	Register(s, Deps{Client: c, Config: cfg, Log: log})
 	st, ct := mcp.NewInMemoryTransports()
 	ctx := context.Background()
 	if _, err := s.Connect(ctx, st, nil); err != nil {
