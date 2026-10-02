@@ -1,5 +1,5 @@
 {
-  description = "MCP server for the Freshservice API v2";
+  description = "MCP server for the Freshservice API v2, packaged with a NixOS module";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
@@ -16,15 +16,34 @@
     {
       overlays.default = import ./overlay.nix;
 
+      nixosModules = {
+        freshservice-mcp =
+          { pkgs, ... }:
+          {
+            imports = [ ./modules/freshservice-mcp.nix ];
+            services.freshservice-mcp.package =
+              lib.mkDefault
+                self.packages.${pkgs.stdenv.hostPlatform.system}.freshservice-mcp;
+          };
+        default = self.nixosModules.freshservice-mcp;
+      };
+
       packages = forAllSystems (system: rec {
         freshservice-mcp = (pkgsFor system).callPackage ./pkgs/freshservice-mcp.nix { };
         default = freshservice-mcp;
       });
 
-      checks = forAllSystems (system: {
-        # Runs the Go test suite in checkPhase.
-        package = self.packages.${system}.freshservice-mcp;
-      });
+      checks = forAllSystems (
+        system:
+        {
+          # Runs the Go test suite in checkPhase.
+          package = self.packages.${system}.freshservice-mcp;
+        }
+        // import ./tests/eval.nix {
+          inherit self lib;
+          pkgs = pkgsFor system;
+        }
+      );
 
       formatter = forAllSystems (system: (pkgsFor system).nixfmt-tree);
 
