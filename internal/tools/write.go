@@ -7,6 +7,7 @@ import (
 	"maps"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 
 	"github.com/lcleveland/freshservice-mcp/internal/freshservice"
@@ -16,13 +17,6 @@ import (
 // the capability check, reason, workspace, confirmation and audit log cannot
 // be skipped. Nothing here retries: Freshservice writes take no idempotency key.
 func (d Deps) write(ctx context.Context, tool string, v View, in Input) (any, error) {
-	if !d.Config.Allow[v.Capability] {
-		return nil, fmt.Errorf("the %s capability is disabled by the operator", v.Capability)
-	}
-	reason := strings.TrimSpace(in.Reason)
-	if reason == "" {
-		return nil, errors.New("reason is required for writes; say why, it is recorded in the audit log")
-	}
 	q, err := toValues(in.Params)
 	if err != nil {
 		return nil, err
@@ -42,15 +36,29 @@ func (d Deps) write(ctx context.Context, tool string, v View, in Input) (any, er
 			return nil, err
 		}
 	}
+	vars := pathVars(p, in.ID, q)
 	path, err := fill(p, in.ID, q)
 	if err != nil {
 		return nil, err
+	}
+	return d.writeAt(ctx, tool, v, in, path, q, vars)
+}
+
+// writeAt sends a write to a concrete path. vars are the path's placeholder
+// values, for the confirm lookup.
+func (d Deps) writeAt(ctx context.Context, tool string, v View, in Input, path string, q url.Values, vars map[string]string) (any, error) {
+	if !d.Config.Allow[v.Capability] {
+		return nil, fmt.Errorf("the %s capability is disabled by the operator", v.Capability)
+	}
+	reason := strings.TrimSpace(in.Reason)
+	if reason == "" {
+		return nil, errors.New("reason is required for writes; say why, it is recorded in the audit log")
 	}
 	body, err := writeBody(v, in.Body)
 	if err != nil {
 		return nil, err
 	}
-	if v.Create && v.WS != WSNone {
+	if v.Create && v.WS != WSNone && !(tool == "freshservice_api" && has(body, "workspace_id")) {
 		if body, err = d.createWorkspace(ctx, v, in, body); err != nil {
 			return nil, err
 		}
@@ -58,7 +66,7 @@ func (d Deps) write(ctx context.Context, tool string, v View, in Input) (any, er
 		return nil, fmt.Errorf("action %s takes no workspace (only creates of workspace-scoped records do)", v.Action)
 	}
 	if v.Confirm != "" && (v.ConfirmIf == "" || has(body, v.ConfirmIf)) {
-		if err := d.confirm(ctx, v, in); err != nil {
+		if err := d.confirm(ctx, v, in, vars); err != nil {
 			return nil, err
 		}
 	}
@@ -130,12 +138,16 @@ func (d Deps) createWorkspace(ctx context.Context, v View, in Input, body map[st
 
 // confirm makes the model name the record it means to act on, so a wrong id
 // fails before anything is sent.
-func (d Deps) confirm(ctx context.Context, v View, in Input) error {
+func (d Deps) confirm(ctx context.Context, v View, in Input, vars map[string]string) error {
 	p := v.ConfirmPath
 	if p == "" {
 		p = v.Path
 	}
-	path, err := fill(p, in.ID, mustValues(in.Params))
+	q := url.Values{}
+	for k, x := range vars {
+		q.Set(k, x)
+	}
+	path, err := fill(p, vars["id"], q)
 	if err != nil {
 		return err
 	}
@@ -158,10 +170,18 @@ func has(m map[string]any, k string) bool {
 	return ok
 }
 
-func mustValues(m map[string]any) url.Values {
-	q, _ := toValues(m)
-	return q
+// pathVars records the values a path template's placeholders will take.
+func pathVars(p string, id any, q url.Values) map[string]string {
+	vars := map[string]string{"id": scalarString(id)}
+	for _, m := range placeholderRE.FindAllStringSubmatch(p, -1) {
+		if m[1] != "id" {
+			vars[m[1]] = q.Get(m[1])
+		}
+	}
+	return vars
 }
+
+var placeholderRE = regexp.MustCompile(`\{([a-z_]+)\}`)
 
 func toNumber(s string) (any, error) {
 	var n int64
