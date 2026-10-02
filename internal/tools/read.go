@@ -348,11 +348,26 @@ func decodeCursor(action, c string) (pos, error) {
 	return pos{}, fmt.Errorf("cursor does not belong to action %s; pass next_cursor from the previous %s call unchanged", action, action)
 }
 
-// project keeps only the named top-level fields.
+// project keeps only the named top-level fields, of each item when v is an
+// array or a one-key wrapper around one (e.g. {"ticket_fields":[...]}).
 func project(v any, fields []string) any {
+	if a, ok := v.([]any); ok {
+		out := make([]any, len(a))
+		for i, x := range a {
+			out[i] = project(x, fields)
+		}
+		return out
+	}
 	m, ok := v.(map[string]any)
 	if !ok {
 		return v
+	}
+	if len(m) == 1 {
+		for k, x := range m {
+			if a, ok := x.([]any); ok && !slices.Contains(fields, k) {
+				return map[string]any{k: project(a, fields)}
+			}
+		}
 	}
 	out := make(map[string]any, len(fields))
 	for _, f := range fields {

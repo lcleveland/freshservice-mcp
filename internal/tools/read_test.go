@@ -155,3 +155,13 @@ func TestGetUnwrapsAndLinks(t *testing.T) {
 		t.Errorf("task path = %s", path)
 	}
 }
+
+func TestFieldsProjectsArrayResponse(t *testing.T) {
+	cs := session(t, nil, func(w http.ResponseWriter, r *http.Request) {
+		jsonOK(w, `{"ticket_fields":[{"name":"status","label":"Status","choices":[1,2]}]}`)
+	})
+	_, isErr, text := call(t, cs, "freshservice_ticket", map[string]any{"action": "fields", "fields": "name,label"})
+	if isErr || text != `{"ticket_fields":[{"label":"Status","name":"status"}]}` {
+		t.Fatalf("fields projection: %s", text)
+	}
+}
