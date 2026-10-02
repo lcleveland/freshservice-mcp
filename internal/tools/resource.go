@@ -20,6 +20,11 @@ type Input struct {
 	Cursor    string         `json:"cursor,omitempty" jsonschema:"next_cursor from the previous call of the same action, to get the next page"`
 	Limit     int            `json:"limit,omitempty" jsonschema:"list actions: max items"`
 	Workspace any            `json:"workspace,omitempty" jsonschema:"workspace id, name (e.g. \"HR\") or \"all\"; default: the server's default workspace"`
+	By        string         `json:"by,omitempty" jsonschema:"group_by and backlog: the field to group on, e.g. status, priority, group_id, agent_id, type"`
+	Values    []any          `json:"values,omitempty" jsonschema:"group_by: the values to count, instead of every choice of the field"`
+	From      string         `json:"from,omitempty" jsonschema:"trend: first day, YYYY-MM-DD"`
+	To        string         `json:"to,omitempty" jsonschema:"trend: last day, YYYY-MM-DD"`
+	Interval  string         `json:"interval,omitempty" jsonschema:"trend: day (default) or week"`
 }
 
 func registerTool(s *mcp.Server, d Deps, t Tool) error {
@@ -39,6 +44,11 @@ func registerTool(s *mcp.Server, d Deps, t Tool) error {
 	if !slices.ContainsFunc(views, func(v View) bool { return v.Filter != "" }) {
 		delete(schema.Properties, "query")
 	}
+	for field, summaries := range map[string][]string{"by": {"group_by", "backlog"}, "values": {"group_by"}, "from": {"trend"}, "to": {"trend"}, "interval": {"trend"}} {
+		if !slices.ContainsFunc(views, func(v View) bool { return slices.Contains(summaries, v.Summary) }) {
+			delete(schema.Properties, field)
+		}
+	}
 	if !slices.ContainsFunc(views, func(v View) bool { return v.WS != WSNone }) {
 		delete(schema.Properties, "workspace")
 	} else {
@@ -55,6 +65,10 @@ func registerTool(s *mcp.Server, d Deps, t Tool) error {
 		i := slices.IndexFunc(views, func(v View) bool { return v.Action == in.Action })
 		if i < 0 {
 			return nil, nil, fmt.Errorf("action %q is not available on %s (available: %s)", in.Action, t.Name, strings.Join(names(views), ", "))
+		}
+		if views[i].Summary != "" {
+			out, err := d.summary(ctx, t.Name, views[i], in)
+			return nil, out, err
 		}
 		out, err := d.read(ctx, t.Name, views[i], in)
 		return nil, out, err

@@ -1,5 +1,8 @@
 package tools
 
+var ticketSummary = summaries(View{Path: "/api/v2/tickets/filter", Filter: "query", Total: true, AllQuery: "created_at:>'2000-01-01'",
+	FieldsPath: "/api/v2/ticket_form_fields", WS: WSAll})
+
 var ticketBrief = []string{"id", "subject", "type", "status", "priority", "source", "requester_id", "responder_id", "group_id",
 	"department_id", "category", "workspace_id", "created_at", "updated_at", "due_by"}
 
@@ -39,14 +42,19 @@ var coreTools = []Tool{
 			{Action: "approval_groups", Help: "approval groups of ticket id.", Path: "/api/v2/tickets/{id}/approval-groups"},
 			{Action: "requested_items", Help: "catalog items requested by service request id.", Path: "/api/v2/tickets/{id}/requested_items", List: true},
 			{Action: "csat", Help: "CSAT survey response of ticket id.", Path: "/api/v2/tickets/{id}/csat_response"},
+			ticketSummary[0], ticketSummary[1],
 			{Action: "emails", Help: "email collaboration threads of ticket id.", Path: "/api/v2/tickets/{id}/communications", List: true},
 			{Action: "email", Help: "email params.email_id of ticket id.", Path: "/api/v2/tickets/{id}/communications/{email_id}"},
+			{Action: "backlog", Help: "open tickets (every status but Resolved and Closed) by status x by (group_id, the default, or priority), plus how many are overdue. One API call per cell.",
+				Summary: "backlog", Path: "/api/v2/tickets/filter", Filter: "query", Total: true, FieldsPath: "/api/v2/ticket_form_fields", WS: WSAll},
+			{Action: "trend", Help: "tickets created and resolved per day or week from from to to (YYYY-MM-DD), optionally within query. Two API calls per period.",
+				Summary: "trend", Path: "/api/v2/tickets/filter", Filter: "query", Total: true, WS: WSAll},
 			{Action: "all_approvals", Help: "approvals across tickets, changes and releases; params parent (ticket|change|release), status (requested|approved|rejected|cancelled).",
 				Path: "/api/v2/approvals", List: true},
 		}},
 	{Name: "freshservice_requester", Group: "core", Title: "Requesters and requester groups",
 		Description: "People who raise tickets, and requester groups. Account-level: requesters are shared by every workspace.",
-		Views: []View{
+		Views: append([]View{
 			{Action: "list", Help: "requesters; params email, mobile_phone_number, include_agents.", Path: "/api/v2/requesters", List: true, Brief: requesterBrief},
 			{Action: "filter", Help: "requesters matching query (fields: first_name, last_name, job_title, primary_email, department_id, location_id, created_at, updated_at, custom fields).",
 				Path: "/api/v2/requesters", List: true, Filter: "query", Brief: requesterBrief},
@@ -56,10 +64,10 @@ var coreTools = []Tool{
 			{Action: "groups", Help: "requester groups.", Path: "/api/v2/requester_groups", List: true},
 			{Action: "group", Help: "requester group id.", Path: "/api/v2/requester_groups/{id}"},
 			{Action: "group_members", Help: "members of requester group id.", Path: "/api/v2/requester_groups/{id}/members", List: true, Brief: requesterBrief},
-		}},
+		}, summaries(View{Path: "/api/v2/requesters", Filter: "query", ScanPath: "/api/v2/requesters"})...)},
 	{Name: "freshservice_agent", Group: "core", Title: "Agents, agent groups and roles",
 		Description: "Staff who work tickets, the groups tickets are assigned to, and agent roles. Agents are account-level and carry workspace_ids.",
-		Views: []View{
+		Views: append([]View{
 			{Action: "list", Help: "agents; params email, active, state (fulltime|occasional).", Path: "/api/v2/agents", List: true, Brief: agentBrief},
 			{Action: "filter", Help: "agents matching query (fields: first_name, last_name, job_title, email, department_id, location_id, created_at, updated_at, custom fields).",
 				Path: "/api/v2/agents", List: true, Filter: "query", Brief: agentBrief},
@@ -71,7 +79,7 @@ var coreTools = []Tool{
 			{Action: "roles", Help: "agent roles.", Path: "/api/v2/roles", List: true},
 			{Action: "role", Help: "agent role id.", Path: "/api/v2/roles/{id}"},
 			{Action: "delegation", Help: "approval delegation set by user id.", Path: "/api/v2/users/{id}/delegation"},
-		}},
+		}, summaries(View{Path: "/api/v2/agents", Filter: "query", ScanPath: "/api/v2/agents"})...)},
 	{Name: "freshservice_lookup", Group: "core", Title: "Departments, locations, SLAs and canned responses",
 		Description: "Reference data tickets point at: departments, locations, business hours, SLA policies and canned responses.",
 		Views: []View{

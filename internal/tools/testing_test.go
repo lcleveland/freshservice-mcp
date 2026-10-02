@@ -39,6 +39,9 @@ func session(t *testing.T, cfg *config.Config, h http.HandlerFunc) *mcp.ClientSe
 	if cfg.MaxRecords == 0 {
 		cfg.MaxRecords = 2000
 	}
+	if cfg.MaxBuckets == 0 {
+		cfg.MaxBuckets = 60
+	}
 	c := freshservice.New(u, "key", srv.Client(), nil)
 	c.Attempts, c.BaseDelay = 1, time.Millisecond
 

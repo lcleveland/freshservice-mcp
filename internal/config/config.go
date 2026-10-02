@@ -27,6 +27,7 @@ type Config struct {
 	DefaultWorkspace string   // id or name; empty means the primary workspace
 	MaxRecords       int      // cap on records one list call may return
 	Groups           []string // tool groups to register; empty means all
+	MaxBuckets       int      // most API calls one summary may fan out to
 	RequestTimeout   time.Duration
 	LogLevel         slog.Level
 
@@ -71,6 +72,7 @@ func Parse(args []string, getenv func(string) string) (*Config, []string, error)
 	fs.StringVar(&keyFile, "api-key-file", getenv("FRESHSERVICE_API_KEY_FILE"), "file holding the agent API key (env FRESHSERVICE_API_KEY_FILE)")
 	fs.StringVar(&c.DefaultWorkspace, "default-workspace", getenv("FRESHSERVICE_DEFAULT_WORKSPACE"), "workspace id or name used when a call names none (default: the primary workspace) (env FRESHSERVICE_DEFAULT_WORKSPACE)")
 	fs.IntVar(&c.MaxRecords, "max-records", atoi(getenv("FRESHSERVICE_MAX_RECORDS"), 2000), "most records one list call may return (env FRESHSERVICE_MAX_RECORDS)")
+	fs.IntVar(&c.MaxBuckets, "max-buckets", atoi(getenv("FRESHSERVICE_MAX_BUCKETS"), 60), "most API calls one summary (group_by, backlog, trend) may make (env FRESHSERVICE_MAX_BUCKETS)")
 	fs.StringVar(&groups, "tool-groups", getenv("FRESHSERVICE_TOOL_GROUPS"), "comma-separated tool groups to enable (default all): "+strings.Join(Groups, ",")+" (env FRESHSERVICE_TOOL_GROUPS)")
 	fs.DurationVar(&c.RequestTimeout, "request-timeout", 30*time.Second, "per-request timeout to Freshservice")
 	fs.StringVar(&logLevel, "log-level", or(getenv("FRESHSERVICE_MCP_LOG_LEVEL"), "info"), "debug|info|warn|error (env FRESHSERVICE_MCP_LOG_LEVEL)")
@@ -93,8 +95,8 @@ func Parse(args []string, getenv func(string) string) (*Config, []string, error)
 		return nil, nil, fmt.Errorf("--log-level: %w", err)
 	}
 
-	if c.MaxRecords < 1 {
-		return nil, nil, errors.New("--max-records must be at least 1")
+	if c.MaxRecords < 1 || c.MaxBuckets < 1 {
+		return nil, nil, errors.New("--max-records and --max-buckets must be at least 1")
 	}
 
 	if groups != "" {

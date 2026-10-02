@@ -31,7 +31,7 @@ var readTools = []Tool{
 			{Action: "list", Help: "problems, newest first.", Path: "/api/v2/problems", List: true, Brief: problemBrief, WS: WSAll, AllNote: true},
 			{Action: "get", Help: "problem id in full.", Path: "/api/v2/problems/{id}", Link: "/a/problems/{id}"},
 			{Action: "fields", Help: "problem form fields and their choices.", Path: "/api/v2/problem_form_fields", WS: WSOne},
-		}, itilChildren("/api/v2/problems")...)},
+		}, append(itilChildren("/api/v2/problems"), summaries(View{Path: "/api/v2/problems", ScanPath: "/api/v2/problems", WS: WSAll})...)...)},
 	{Name: "freshservice_change", Group: "itil", Title: "Changes and CABs",
 		Description: "Change requests, their approvals, notes, tasks and time entries, and Change Advisory Boards. " +
 			"status: 1 Open, 2 Planning, 3 Awaiting Approval, 4 Pending Release, 5 Pending Review, 6 Closed. change_type: 1 Minor, 2 Standard, 3 Major, 4 Emergency. risk: 1 Low, 2 Medium, 3 High, 4 Very High.",
@@ -46,7 +46,7 @@ var readTools = []Tool{
 			{Action: "approval_groups", Help: "approval groups of change id.", Path: "/api/v2/changes/{id}/approval-groups"},
 			{Action: "cabs", Help: "Change Advisory Boards.", Path: "/api/v2/cabs", List: true},
 			{Action: "cab", Help: "CAB id.", Path: "/api/v2/cabs/{id}"},
-		}, itilChildren("/api/v2/changes")...)},
+		}, append(itilChildren("/api/v2/changes"), summaries(View{Path: "/api/v2/changes", Filter: "query", ScanPath: "/api/v2/changes", WS: WSAll})...)...)},
 	{Name: "freshservice_release", Group: "itil", Title: "Releases and post-incident report templates",
 		Description: "Releases, with notes, tasks and time entries; and post-incident report (PIR) templates. release_type: 1 Minor, 2 Standard, 3 Major, 4 Emergency.",
 		Views: append([]View{
@@ -57,14 +57,14 @@ var readTools = []Tool{
 			{Action: "fields", Help: "release form fields and their choices.", Path: "/api/v2/release_form_fields", WS: WSOne},
 			{Action: "pir_templates", Help: "post-incident report templates.", Path: "/api/v2/post-incident-reports/templates", List: true},
 			{Action: "pir_template", Help: "post-incident report template id.", Path: "/api/v2/post-incident-reports/templates/{id}"},
-		}, itilChildren("/api/v2/releases")...)},
+		}, append(itilChildren("/api/v2/releases"), summaries(View{Path: "/api/v2/releases", Filter: "query", ScanPath: "/api/v2/releases", WS: WSAll})...)...)},
 
 	// assets
 	{Name: "freshservice_asset", Group: "assets", Title: "Assets, CMDB relationships and asset types",
 		Description: "Assets (CMDB configuration items) on whichever asset API this account has: classic or ITAM (freshservice_status says which). " +
 			"On the classic API, id is the asset's Display ID, the number agents see in Freshservice. Component, contract, request and assignment actions are classic only; " +
 			"device, subtype, lifecycle and cloud actions are ITAM only.",
-		Views: []View{
+		Views: append([]View{
 			{Action: "list", Help: "assets; params include (type_fields), order_by, order_type, trashed.", Path: "{assets}", List: true, Brief: assetBrief, WS: WSAll, AllNote: true},
 			{Action: "filter", Help: "assets matching query (fields: asset_type_id, department_id, location_id, asset_state, user_id, agent_id, name, asset_tag, created_at, updated_at, custom fields). At most 1,200 results.",
 				Path: "{assets}", List: true, Filter: "filter", Brief: assetBrief, WS: WSAll, AllNote: true},
@@ -91,7 +91,7 @@ var readTools = []Tool{
 			{Action: "cloud_resource", Help: "ITAM cloud resource id.", Path: "/api/v2/itam/resources/{id}"},
 			{Action: "cloud_relationships", Help: "ITAM cloud resource relationships.", Path: "/api/v2/itam/resource_relationships", List: true},
 			{Action: "cloud_infrastructures", Help: "ITAM cloud infrastructure details.", Path: "/api/v2/itam/cloud_infrastructures"},
-		}},
+		}, summaries(View{Path: "{assets}", Filter: "filter", ScanPath: "{assets}", WS: WSAll})...)},
 	{Name: "freshservice_software", Group: "assets", Title: "Software",
 		Description: "Software applications discovered or managed in Freshservice, with installations, licenses and users.",
 		Views: []View{

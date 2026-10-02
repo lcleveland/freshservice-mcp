@@ -28,6 +28,14 @@ type View struct {
 	WS       WSMode
 	AllNote  bool   // workspace "all" returns only global fields (Freshservice drops workspace custom fields)
 	Link     string // agent-portal path for a get, e.g. "/a/tickets/{id}"
+
+	// Summaries: Summary is count, group_by, backlog or trend. Path is the
+	// filter endpoint (Filter its param), ScanPath the plain list.
+	Summary    string
+	Total      bool   // the filter returns "total": count per bucket, not by scanning
+	AllQuery   string // query meaning "everything", for filters that require one
+	ScanPath   string
+	FieldsPath string // form fields whose choices give group_by its buckets
 }
 
 // WSMode is how a view takes a workspace.
@@ -54,4 +62,21 @@ func Tools() []Tool {
 		all = append(all, t...)
 	}
 	return all
+}
+
+// summaries are the count and group_by actions over one resource.
+func summaries(v View) []View {
+	c, g := v, v
+	c.Action, c.Summary = "count", "count"
+	c.Help = "how many records match query (all when omitted)."
+	g.Action, g.Summary = "group_by", "group_by"
+	g.Help = "counts per value of by (e.g. status, priority, group_id, agent_id), optionally within query; values narrows which values to count."
+	if v.Total {
+		c.Help += " One API call."
+		g.Help += " Fixed-value fields cost one API call per value, refused over --max-buckets; other fields scan up to --max-records."
+	} else {
+		c.Help += " Counts by scanning, up to --max-records."
+		g.Help += " Tallies by scanning, up to --max-records."
+	}
+	return []View{c, g}
 }
