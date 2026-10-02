@@ -17,8 +17,8 @@ import (
 // returns a total (the ticket filter), each bucket costs one call; elsewhere
 // one capped scan tallies the field.
 //
-// ponytail: only the ticket filter is known to return "total"; flip Total on
-// other views once the live-tenant check confirms theirs.
+// Only the ticket filter returns "total": the change, requester, agent and
+// asset filters were checked on the live tenant and do not.
 
 const (
 	reserveFraction = 5 // stop fan-out when under 1/5 (20%) of the rate budget remains
@@ -149,10 +149,8 @@ func (d Deps) backlog(ctx context.Context, v View, in Input) (any, error) {
 }
 
 // trend: tickets created and resolved per day or week. "resolved" counts
-// resolved/closed tickets last updated in the bucket: an approximation.
-//
-// ponytail: switch resolved to resolved_at once the live check shows the
-// ticket filter accepts it.
+// resolved/closed tickets last updated in the bucket: an approximation, since
+// the ticket filter rejects resolved_at.
 func (d Deps) trend(ctx context.Context, v View, in Input) (any, error) {
 	from, err1 := time.Parse(time.DateOnly, in.From)
 	to, err2 := time.Parse(time.DateOnly, in.To)
@@ -305,7 +303,7 @@ func (d Deps) scan(ctx context.Context, v View, in Input, by string) (*tally, er
 	if _, err := d.workspace(ctx, v, in, q); err != nil {
 		return nil, err
 	}
-	query, path, size := in.Query, v.ScanPath, perPage
+	query, path := in.Query, v.ScanPath
 	if query == "" {
 		query = v.AllQuery // the ticket filter needs some query
 	}
@@ -318,10 +316,9 @@ func (d Deps) scan(ctx context.Context, v View, in Input, by string) (*tally, er
 			return nil, err
 		}
 		q.Set(v.Filter, fq)
-		path, size = v.Path, filterPage
-	} else {
-		q.Set("per_page", strconv.Itoa(perPage))
+		path = v.Path
 	}
+	size := pageSize(q)
 	p, err := d.assetPath(ctx, path)
 	if err != nil {
 		return nil, err
@@ -329,6 +326,10 @@ func (d Deps) scan(ctx context.Context, v View, in Input, by string) (*tally, er
 	for page := 1; ; page++ {
 		if low := d.lowBudget(); low != "" {
 			t.partial = low
+			return t, nil
+		}
+		if p == ticketFilter && (page-1)*size >= filterWindow {
+			t.partial = "the ticket filter stops at its first 10,000 matches; narrow the query for exact counts"
 			return t, nil
 		}
 		q.Set("page", strconv.Itoa(page))

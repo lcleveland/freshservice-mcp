@@ -164,16 +164,17 @@ claude mcp add freshservice -e FRESHSERVICE_DOMAIN=acme.freshservice.com \
   -e FRESHSERVICE_API_KEY_FILE=$HOME/.config/freshservice-mcp/api-key -- freshservice-mcp
 ```
 
-## Not yet verified against a live tenant
+## Checked against a live tenant
 
-The suite runs against fakes. These behaviours come from Freshservice's docs and still need checking on our account:
-- whether the ticket filter has a page cap, and whether filters honour `per_page` (the server never sends it to a filter);
-- our real `X-Ratelimit-Total` and whether the window is per minute or the legacy hourly one;
-- which asset API our account answers (the server detects classic or ITAM at first use);
-- what an invalid or inaccessible `workspace_id` returns (403 or 404), and whether `/workspaces` lists restricted workspaces;
-- whether the ticket filter accepts `resolved_at`. If it does, `trend` should count resolutions with it instead of approximating;
-- whether filters other than tickets return a `total` (then their summaries could count per bucket instead of scanning);
-- the agent-portal paths behind `get`'s `url` (`/a/tickets/{id}` and siblings).
+These behaviours were confirmed on a real account ([#21](https://github.com/lcleveland/freshservice-mcp/issues/21)):
+- **Ticket filter paging:** honours `per_page` up to 100 (the server sends 100). It returns nothing past its first **10,000 matches**: deeper pages come back empty with `total` 0, not an error. The server stops there with a `_truncation` note (or `partial` on a summary).
+- **Other filters:** the change and requester queries take `per_page`. The asset filter rejects it and pages by 30. Only the ticket filter returns `total`, so the other summaries scan.
+- **Rate limit:** per minute, not hourly, and `X-Ratelimit-Total` can change between minutes, so the server reads the budget from each response rather than assuming one.
+- **Workspaces:** an unknown or inaccessible `workspace_id` on a list is 403, the same as a restricted workspace. `GET /workspaces/{id}` for one is 404.
+- **`resolved_at`:** the ticket filter rejects it (400), so `trend`'s resolved series stays an approximation.
+- **Portal links:** `get` links to `/helpdesk/tickets/{id}` and `/itil/{problems,changes,releases}/{id}`. The `/a/...` paths 404.
+
+Not yet checked: whether `/workspaces` lists restricted workspaces the agent is not a member of.
 
 ## Development
 

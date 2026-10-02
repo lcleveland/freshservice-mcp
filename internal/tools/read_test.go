@@ -120,8 +120,8 @@ func TestFilterQuery(t *testing.T) {
 			return
 		}
 		path, q = r.URL.Path, r.URL.Query().Get("query")
-		if r.URL.Query().Has("per_page") {
-			t.Error("per_page sent to a filter")
+		if r.URL.Query().Get("per_page") != "100" {
+			t.Error("ticket filter not asked for 100 per page")
 		}
 		jsonOK(w, `{"tickets":[{"id":1}],"total":1}`)
 	})
@@ -144,7 +144,7 @@ func TestGetUnwrapsAndLinks(t *testing.T) {
 		jsonOK(w, `{"ticket":{"id":42,"subject":"printer"}}`)
 	})
 	out, isErr, text := call(t, cs, "freshservice_ticket", map[string]any{"action": "get", "id": 42})
-	if isErr || out["subject"] != "printer" || !strings.HasSuffix(out["url"].(string), "/a/tickets/42") {
+	if isErr || out["subject"] != "printer" || !strings.HasSuffix(out["url"].(string), "/helpdesk/tickets/42") {
 		t.Fatalf("get: %v %s", out, text)
 	}
 	if strings.Contains(path, "workspace_id") {
@@ -163,5 +163,24 @@ func TestFieldsProjectsArrayResponse(t *testing.T) {
 	_, isErr, text := call(t, cs, "freshservice_ticket", map[string]any{"action": "fields", "fields": "name,label"})
 	if isErr || text != `{"ticket_fields":[{"label":"Status","name":"status"}]}` {
 		t.Fatalf("fields projection: %s", text)
+	}
+}
+
+func TestTicketFilterWindow(t *testing.T) {
+	calls := 0
+	cs := session(t, nil, func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/api/v2/workspaces" {
+			jsonOK(w, `{"workspaces":[{"id":2,"name":"IT","primary":true}]}`)
+			return
+		}
+		if r.URL.Path == "/api/v2/tickets/filter" {
+			calls++
+		}
+		jsonOK(w, `{"tickets":[],"total":0}`)
+	})
+	out, isErr, text := call(t, cs, "freshservice_ticket", map[string]any{"action": "filter", "query": "status:2",
+		"cursor": encodeCursor("freshservice_ticket.filter", pos{page: 101})})
+	if isErr || calls != 0 || out["_truncation"] == nil {
+		t.Fatalf("past the window: calls %d, %v %s", calls, out, text)
 	}
 }
