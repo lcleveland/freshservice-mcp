@@ -1,0 +1,278 @@
+# Every documented write and delete in docs/research/freshservice-endpoints.md: METHOD path  # module: class: operation
+DELETE /api/v2/agents/{}  # Agents: delete (soft, reversible): Deactivate an Agent
+DELETE /api/v2/agents/{}/forget  # Agents: delete (permanent, GDPR): Forget an Agent
+DELETE /api/v2/ams/alerts/{}  # Alerts (Alert Management): delete: Delete an Alert
+DELETE /api/v2/ams/alerts/{}/notes/{}  # Alerts (Alert Management): delete: Delete an alert note
+DELETE /api/v2/announcements/{}  # Announcements: delete: Delete an Announcement
+DELETE /api/v2/applications  # Software: delete: Delete multiple Software
+DELETE /api/v2/applications/{}  # Software: delete: Delete a Software
+DELETE /api/v2/applications/{}/installations  # Software: write (unlink): Remove devices from a Software in bulk
+DELETE /api/v2/applications/{}/users  # Software: write (unlink): Remove Users from a Software in bulk
+DELETE /api/v2/asset_types/{}  # Asset types: delete: Delete an Asset Type
+DELETE /api/v2/assets/{}  # Assets / CMDB (classic): delete: Delete an Asset
+DELETE /api/v2/cabs/{}  # Change Advisory Boards (CABs): delete: Delete a CAB
+DELETE /api/v2/changes/{}  # Changes: delete: Delete a Change
+DELETE /api/v2/changes/{}/notes/{}  # Changes: delete: Delete a Note
+DELETE /api/v2/changes/{}/status/pages/{}/maintenances/{}  # Status page: delete: Delete a maintenance from a change
+DELETE /api/v2/changes/{}/status/pages/{}/maintenances/{}/updates/{}  # Status page: delete: Delete a maintenance update from a change
+DELETE /api/v2/changes/{}/tasks/{}  # Changes: delete: Delete a Task
+DELETE /api/v2/changes/{}/time_entries/{}  # Changes: delete: Delete a Time Entry
+DELETE /api/v2/conversations/{}  # Conversations: delete: Delete a Conversation
+DELETE /api/v2/conversations/{}/attachments/{}  # Conversations: delete: Delete a Conversation Attachment
+DELETE /api/v2/departments/{}  # Departments / Companies: delete: Delete a Department
+DELETE /api/v2/groups/{}  # Agent groups: delete: Delete a Group
+DELETE /api/v2/itam/assets/{}  # ITAM assets (Freshservice IT Asset Management): delete: Delete an asset
+DELETE /api/v2/itam/cloud_infrastructures/{}  # ITAM physical subtypes, devices, cloud: delete: Delete cloud details
+DELETE /api/v2/itam/devices/{}  # ITAM physical subtypes, devices, cloud: delete: Delete a device
+DELETE /api/v2/itam/lifecycle_events/{}  # ITAM physical subtypes, devices, cloud: delete: Delete a lifecycle event
+DELETE /api/v2/itam/physical-subtypes/{}  # ITAM physical subtypes, devices, cloud: delete: Delete a physical subtype
+DELETE /api/v2/itam/resource_relationships/{}  # ITAM physical subtypes, devices, cloud: delete: Delete a cloud resource relationship
+DELETE /api/v2/itam/resources/{}  # ITAM physical subtypes, devices, cloud: delete: Delete a cloud resource
+DELETE /api/v2/journeys/requests/{}  # Journeys: delete: Delete a Journey Request
+DELETE /api/v2/locations/{}  # Locations: delete: Delete a Location
+DELETE /api/v2/maintenance-windows/{}/status/pages/{}/maintenances/{}  # Status page: delete: Delete a maintenance from a maintenance window
+DELETE /api/v2/maintenance-windows/{}/status/pages/{}/maintenances/{}/updates/{}  # Status page: delete: Delete a maintenance update from a maintenance window
+DELETE /api/v2/objects/{}/records/{}  # Custom objects: delete: Delete Custom Object Record
+DELETE /api/v2/oncall/ws/{}/schedules/{}  # On-call management: delete: Delete a schedule
+DELETE /api/v2/oncall/ws/{}/schedules/{}/escalation-policies/{}  # On-call management: delete: Delete an escalation policy
+DELETE /api/v2/oncall/ws/{}/schedules/{}/shifts/{}  # On-call management: delete: Delete a shift
+DELETE /api/v2/pm/projects/{}  # Projects (new-gen, /pm): delete: Delete a Project
+DELETE /api/v2/pm/projects/{}/attachments/{}  # Projects (new-gen, /pm): delete: Delete Attachment of a Project
+DELETE /api/v2/pm/projects/{}/tasks/{}  # Projects (new-gen, /pm): delete: Delete a Project Task
+DELETE /api/v2/pm/projects/{}/tasks/{}/attachments/{}  # Projects (new-gen, /pm): delete: Delete Attachment of a Task
+DELETE /api/v2/pm/projects/{}/tasks/{}/notes/{}  # Projects (new-gen, /pm): delete: Delete Note
+DELETE /api/v2/pm/projects/{}/tasks/{}/notes/{}/attachments/{}  # Projects (new-gen, /pm): delete: Delete Attachment of a Note
+DELETE /api/v2/pm/projects/{}/tasks/{}/{}/{}  # Projects (new-gen, /pm): delete: Delete Association
+DELETE /api/v2/pm/projects/{}/{}/{}  # Projects (new-gen, /pm): delete: Delete Association
+DELETE /api/v2/post-incident-reports/templates/{}  # Post-incident report templates: delete: Delete an existing post-incident report template
+DELETE /api/v2/problems/{}  # Problems: delete: Delete a Problem
+DELETE /api/v2/problems/{}/notes/{}  # Problems: delete: Delete a note
+DELETE /api/v2/problems/{}/tasks/{}  # Problems: delete: Delete a Task
+DELETE /api/v2/problems/{}/time_entries/{}  # Problems: delete: Delete a Time Entry
+DELETE /api/v2/products/{}  # Products: delete: Delete a Product
+DELETE /api/v2/projects/{}  # Projects (legacy): delete: Delete a Project
+DELETE /api/v2/projects/{}/tasks/{}  # Projects (legacy): delete: Delete a Project Task
+DELETE /api/v2/purchase_orders/{}  # Purchase orders: delete: Delete a Purchase Order
+DELETE /api/v2/relationships  # Assets / CMDB (classic): delete: Delete Relationships in bulk
+DELETE /api/v2/releases/{}  # Releases: delete: Delete a Release
+DELETE /api/v2/releases/{}/notes/{}  # Releases: delete: Delete a note
+DELETE /api/v2/releases/{}/tasks/{}  # Releases: delete: Delete a Task
+DELETE /api/v2/releases/{}/time_entries/{}  # Releases: delete: Delete a Time Entry
+DELETE /api/v2/requester_groups/{}  # Requester groups / Contact groups: delete: Delete a Requester Group/Contact Group
+DELETE /api/v2/requester_groups/{}/members/{}  # Requester groups / Contact groups: write (unlink): Delete Requester/Contact from Requester/Contact Group
+DELETE /api/v2/requesters/{}  # Requesters / Contacts: delete (soft, reversible): Deactivate a Requester/Contact
+DELETE /api/v2/requesters/{}/forget  # Requesters / Contacts: delete (permanent, GDPR): Forget a Requester/Contact
+DELETE /api/v2/service-catalog/items/{}  # Service catalog: delete: Delete a Service Catalog Item
+DELETE /api/v2/service-catalog/shared-fields/{}  # Service catalog: delete: Delete shared fields
+DELETE /api/v2/solutions/articles/{}  # Solutions (knowledge base): delete: Delete Solution Article
+DELETE /api/v2/solutions/articles/{}/delete_forever  # Solutions (knowledge base): delete (permanent): Permanently Delete Solution Article
+DELETE /api/v2/solutions/categories/{}  # Solutions (knowledge base): delete: Delete Solution Category
+DELETE /api/v2/solutions/categories/{}/delete_forever  # Solutions (knowledge base): delete (permanent): Permanently Delete Solution Category
+DELETE /api/v2/solutions/folders/{}  # Solutions (knowledge base): delete: Delete Solution Folder
+DELETE /api/v2/solutions/folders/{}/delete_forever  # Solutions (knowledge base): delete (permanent): Permanently Delete Solution Folder
+DELETE /api/v2/status/pages/{}/subscribers/{}  # Status page: delete: Delete a subscriber
+DELETE /api/v2/tickets/{}  # Tickets: delete: Delete a Ticket
+DELETE /api/v2/tickets/{}/attachments/{}  # Tickets: delete: Delete a Ticket Attachment
+DELETE /api/v2/tickets/{}/status/pages/{}/incidents/{}  # Status page: delete: Delete an incident
+DELETE /api/v2/tickets/{}/status/pages/{}/incidents/{}/updates/{}  # Status page: delete: Delete an incident update
+DELETE /api/v2/tickets/{}/tasks/{}  # Ticket tasks: delete: Delete a Task
+DELETE /api/v2/tickets/{}/time_entries/{}  # Tickets: delete: Delete a Time Entry
+DELETE /api/v2/users/{}/delegation  # Delegation: delete: Delete a delegation
+DELETE /api/v2/vendors/{}  # Vendors: delete: Delete a Vendor
+DELETE /api/v2/workspaces/{}  # Workspaces / Clients: delete: Delete a Client
+PATCH /api/v2/cabs/{}  # Change Advisory Boards (CABs): write: Update a CAB
+PATCH /api/v2/journeys/requests/{}  # Journeys: write: Update a Journey Request
+POST /api/v2/agents  # Agents: write: Create an Agent
+POST /api/v2/ams/alerts/{}/notes  # Alerts (Alert Management): write: Create an Alert Note
+POST /api/v2/announcements  # Announcements: write: Create an Announcement
+POST /api/v2/applications  # Software: write: Create a Software
+POST /api/v2/applications/{}/installations  # Software: write: Add a device to a Software
+POST /api/v2/applications/{}/users  # Software: write: Add Users to a Software in bulk
+POST /api/v2/asset_types  # Asset types: write: Create an Asset Type
+POST /api/v2/assets  # Assets / CMDB (classic): write: Create an Asset
+POST /api/v2/assets/{}/components  # Assets / CMDB (classic): write: Create a Component
+POST /api/v2/cabs  # Change Advisory Boards (CABs): write: Create a CAB
+POST /api/v2/changes  # Changes: write: Create a Change
+POST /api/v2/changes/{}/approval-groups  # Changes: write: Create an Approval Group for Changes
+POST /api/v2/changes/{}/notes  # Changes: write: Create a Note
+POST /api/v2/changes/{}/status/pages/{}/maintenances  # Status page: write: Create a maintenance from a change
+POST /api/v2/changes/{}/status/pages/{}/maintenances/{}/updates  # Status page: write: Create a maintenance update from a change
+POST /api/v2/changes/{}/tasks  # Changes: write: Create a Task
+POST /api/v2/changes/{}/time_entries  # Changes: write: Create a Time Entry
+POST /api/v2/contracts  # Contracts: write: Create a Contract
+POST /api/v2/departments  # Departments / Companies: write: Create a Department
+POST /api/v2/groups  # Agent groups: write: Create a Group
+POST /api/v2/itam/assets  # ITAM assets (Freshservice IT Asset Management): write: Create an asset
+POST /api/v2/itam/cloud_infrastructures  # ITAM physical subtypes, devices, cloud: write: Update cloud details
+POST /api/v2/itam/devices  # ITAM physical subtypes, devices, cloud: write: Create a device
+POST /api/v2/itam/physical-subtypes  # ITAM physical subtypes, devices, cloud: write: Create or update physical subtypes
+POST /api/v2/itam/resources  # ITAM physical subtypes, devices, cloud: write: Update a cloud resource
+POST /api/v2/journeys/requests  # Journeys: write: Create a Journey Request
+POST /api/v2/locations  # Locations: write: Create a Location
+POST /api/v2/maintenance-windows/{}/status/pages/{}/maintenances  # Status page: write: Create a maintenance from a maintenance window
+POST /api/v2/maintenance-windows/{}/status/pages/{}/maintenances/{}/updates  # Status page: write: Create a maintenance update from a maintenance window
+POST /api/v2/objects/{}/records  # Custom objects: write: Create new Custom Object Record
+POST /api/v2/offboarding_requests  # Employee offboarding: write: Create an Offboarding Request
+POST /api/v2/onboarding_requests  # Employee onboarding: write: Create an Onboarding Request
+POST /api/v2/oncall/ws/{}/schedules  # On-call management: write: Create a schedule
+POST /api/v2/oncall/ws/{}/schedules/{}/escalation-policies  # On-call management: write: Create an escalation policy
+POST /api/v2/oncall/ws/{}/schedules/{}/shifts  # On-call management: write: Create a shift
+POST /api/v2/pm/projects  # Projects (new-gen, /pm): write: Create a Project
+POST /api/v2/pm/projects/{}/archive  # Projects (new-gen, /pm): write: Archive a Project
+POST /api/v2/pm/projects/{}/members  # Projects (new-gen, /pm): write: Add Members
+POST /api/v2/pm/projects/{}/restore  # Projects (new-gen, /pm): write (restore): Restore a Project
+POST /api/v2/pm/projects/{}/tasks  # Projects (new-gen, /pm): write: Create a Project Task
+POST /api/v2/pm/projects/{}/tasks/{}/notes  # Projects (new-gen, /pm): write: Create Note
+POST /api/v2/pm/projects/{}/tasks/{}/{}  # Projects (new-gen, /pm): write: Create Associations
+POST /api/v2/pm/projects/{}/{}  # Projects (new-gen, /pm): write: Create Associations
+POST /api/v2/post-incident-reports/templates  # Post-incident report templates: write: Create new templates for post-incident reports
+POST /api/v2/problems  # Problems: write: Create a Problem
+POST /api/v2/problems/{}/notes  # Problems: write: Create a note
+POST /api/v2/problems/{}/tasks  # Problems: write: Create a Task
+POST /api/v2/problems/{}/time_entries  # Problems: write: Create a Time Entry
+POST /api/v2/products  # Products: write: Create a Product
+POST /api/v2/projects  # Projects (legacy): write: Create a Project
+POST /api/v2/projects/{}/archive  # Projects (legacy): write: Archive a Project
+POST /api/v2/projects/{}/restore  # Projects (legacy): write (restore): Restore a Project
+POST /api/v2/projects/{}/tasks  # Projects (legacy): write: Create a Project Task
+POST /api/v2/purchase_orders  # Purchase orders: write: Create a new Purchase Order
+POST /api/v2/relationships/bulk-create  # Assets / CMDB (classic): write: Create Relationships in bulk
+POST /api/v2/releases  # Releases: write: Create a Release
+POST /api/v2/releases/{}/notes  # Releases: write: Create a note
+POST /api/v2/releases/{}/tasks  # Releases: write: Create a Task
+POST /api/v2/releases/{}/time_entries  # Releases: write: Create a Time Entry
+POST /api/v2/requester_groups  # Requester groups / Contact groups: write: Create a Requester Group/Contact Group
+POST /api/v2/requester_groups/{}/members/{}  # Requester groups / Contact groups: write: Add Requester to Requester/Contact Group
+POST /api/v2/requesters  # Requesters / Contacts: write: Create a Requester/Contact
+POST /api/v2/service-catalog/items  # Service catalog: write: Create Service Catalog item
+POST /api/v2/service-catalog/shared-fields  # Service catalog: write: Create a shared field
+POST /api/v2/service-catalog/shared-fields/{}/archive  # Service catalog: write: Archive shared fields
+POST /api/v2/service-catalog/shared-fields/{}/unarchive  # Service catalog: write: Unarchive shared fields
+POST /api/v2/service_catalog/items/{}/place_request  # Service Requests: write: Create a Child Service Request
+POST /api/v2/solutions/articles  # Solutions (knowledge base): write: Create Article With Attachment
+POST /api/v2/solutions/categories  # Solutions (knowledge base): write: Create Solution Category
+POST /api/v2/solutions/folders  # Solutions (knowledge base): write: Create Solution Folder
+POST /api/v2/status/pages/{}/subscribers  # Status page: write: Create a subscriber
+POST /api/v2/ticket_fields/sources  # Tickets: write: Create a Source
+POST /api/v2/tickets  # Tickets: write: Create a Ticket
+POST /api/v2/tickets/{}/approval-groups  # Ticket approvals: write: Create Approval Groups for a Service Request
+POST /api/v2/tickets/{}/approvals  # Ticket approvals: write: Request Approval for a Service Request
+POST /api/v2/tickets/{}/communications  # Collaboration (Email, Zoom): write: Trigger a new zoom meeting
+POST /api/v2/tickets/{}/create_child_ticket  # Tickets: write: Create a Child Ticket
+POST /api/v2/tickets/{}/notes  # Conversations: write: Create a Note
+POST /api/v2/tickets/{}/reply  # Conversations: write: Create a Reply
+POST /api/v2/tickets/{}/requested_items  # Service Requests: write: Add Catalog Item to Existing Service Request
+POST /api/v2/tickets/{}/status/pages/{}/incidents  # Status page: write: Create an incident
+POST /api/v2/tickets/{}/status/pages/{}/incidents/{}/updates  # Status page: write: Create incident update
+POST /api/v2/tickets/{}/tasks  # Ticket tasks: write: Create a Task
+POST /api/v2/tickets/{}/time_entries  # Tickets: write: Create a Time Entry
+POST /api/v2/users/{}/delegation  # Delegation: write: Create a delegation
+POST /api/v2/vendors  # Vendors: write: Create a Vendor
+POST /api/v2/workspace  # Workspaces / Clients: write: Create Client
+PUT /api/v2/agents/{}  # Agents: write: Update an Agent
+PUT /api/v2/agents/{}/convert_to_requester  # Agents: write: Convert To Requester
+PUT /api/v2/agents/{}/reactivate  # Agents: write: Reactivate an Agent
+PUT /api/v2/ams/alerts/{}/acknowledge  # Alerts (Alert Management): write: Acknowledge an alert
+PUT /api/v2/ams/alerts/{}/notes/{}  # Alerts (Alert Management): write: Update an alert note
+PUT /api/v2/ams/alerts/{}/resolve  # Alerts (Alert Management): write: Resolve an alert
+PUT /api/v2/ams/alerts/{}/suppress  # Alerts (Alert Management): write: Suppress an alert
+PUT /api/v2/ams/alerts/{}/unsuppress  # Alerts (Alert Management): write: Unsuppress an alert
+PUT /api/v2/announcements/{}  # Announcements: write: Edit an Announcement
+PUT /api/v2/applications/{}  # Software: write: Update a Software
+PUT /api/v2/applications/{}/move_workspace  # Software: write: Move a Software
+PUT /api/v2/applications/{}/users  # Software: write: Update Users of a Software in bulk
+PUT /api/v2/asset_types/{}  # Asset types: write: Update an Asset Type
+PUT /api/v2/assets/{}  # Assets / CMDB (classic): write: Update an Asset
+PUT /api/v2/assets/{}/components/{}  # Assets / CMDB (classic): write: Update a Component
+PUT /api/v2/assets/{}/delete_forever  # Assets / CMDB (classic): delete (permanent): Delete an Asset Permanently
+PUT /api/v2/assets/{}/move_workspace  # Assets / CMDB (classic): write: Move an Asset
+PUT /api/v2/assets/{}/restore  # Assets / CMDB (classic): write (restore): Restore an Asset
+PUT /api/v2/changes/{}  # Changes: write: Update a Change
+PUT /api/v2/changes/{}/approval-chain-rule  # Changes: write: Update approval chain rule for a change
+PUT /api/v2/changes/{}/approval-groups/{}  # Changes: write: Cancel Approval Group In A Change Request
+PUT /api/v2/changes/{}/approvals/{}  # Changes: write: Cancel a Change Approval
+PUT /api/v2/changes/{}/approvals/{}/remind  # Changes: write: Send Reminder for a Change Approval
+PUT /api/v2/changes/{}/move_workspace  # Changes: write: Move a Change
+PUT /api/v2/changes/{}/notes/{}  # Changes: write: Update a Note
+PUT /api/v2/changes/{}/status/pages/{}/maintenances/{}  # Status page: write: Update a maintenance from a change
+PUT /api/v2/changes/{}/status/pages/{}/maintenances/{}/updates/{}  # Status page: write: Update a maintenance update from a change
+PUT /api/v2/changes/{}/tasks/{}  # Changes: write: Update a Task
+PUT /api/v2/changes/{}/time_entries/{}  # Changes: write: Update a Time Entry
+PUT /api/v2/contracts/{}  # Contracts: write: Approve a Contract
+PUT /api/v2/contracts/{}/move_workspace  # Contracts: write: Move a Contract
+PUT /api/v2/conversations/{}  # Conversations: write: Update a Conversation
+PUT /api/v2/departments/{}  # Departments / Companies: write: Update a Department
+PUT /api/v2/groups/{}  # Agent groups: write: Update a Group
+PUT /api/v2/itam/assets  # ITAM assets (Freshservice IT Asset Management): write: Update an asset
+PUT /api/v2/itam/assets/{}  # ITAM assets (Freshservice IT Asset Management): write: Update an asset by ID
+PUT /api/v2/itam/custom_fields/assets  # ITAM assets (Freshservice IT Asset Management): write: Create or update custom field
+PUT /api/v2/itam/custom_fields/cloudinfrastructures  # ITAM physical subtypes, devices, cloud: write: Create or update custom field
+PUT /api/v2/itam/custom_fields/devices  # ITAM physical subtypes, devices, cloud: write: Create or update custom field
+PUT /api/v2/itam/custom_fields/resources  # ITAM physical subtypes, devices, cloud: write: Create or update custom field
+PUT /api/v2/itam/devices/{}  # ITAM physical subtypes, devices, cloud: write: Update a device
+PUT /api/v2/itam/lifecycle_events  # ITAM physical subtypes, devices, cloud: write: Create or update lifecycle events
+PUT /api/v2/journeys/requests/{}/cancel  # Journeys: write: Cancel a Journey Request
+PUT /api/v2/locations/{}  # Locations: write: Update a Location
+PUT /api/v2/maintenance-windows/{}/status/pages/{}/maintenances/{}  # Status page: write: Update a maintenance from a maintenance window
+PUT /api/v2/maintenance-windows/{}/status/pages/{}/maintenances/{}/updates/{}  # Status page: write: Update a maintenance update from a maintenance window
+PUT /api/v2/objects/{}/records/{}  # Custom objects: write: Update Custom Object Record
+PUT /api/v2/oncall/ws/{}/schedules/{}  # On-call management: write: Update a schedule
+PUT /api/v2/oncall/ws/{}/schedules/{}/escalation-policies/reorder  # On-call management: write: Reorder an escalation policy
+PUT /api/v2/oncall/ws/{}/schedules/{}/escalation-policies/{}  # On-call management: write: Update an escalation policy
+PUT /api/v2/oncall/ws/{}/schedules/{}/shifts/{}  # On-call management: write: Update a shift
+PUT /api/v2/oncall/ws/{}/schedules/{}/shifts/{}/rosters/override  # On-call management: write (+delete): Create/Update/Delete an override
+PUT /api/v2/pm/projects/{}  # Projects (new-gen, /pm): write: Update a Project
+PUT /api/v2/pm/projects/{}/tasks/{}  # Projects (new-gen, /pm): write: Update a Project Task
+PUT /api/v2/pm/projects/{}/tasks/{}/notes/{}  # Projects (new-gen, /pm): write: Update Note
+PUT /api/v2/post-incident-reports/templates/{}  # Post-incident report templates: write: Enable template for post-incident reports
+PUT /api/v2/post-incident-reports/templates/{}/mark-as-primary  # Post-incident report templates: write: Set template as primary for post-incident reports
+PUT /api/v2/problems/{}  # Problems: write: Update a Problem
+PUT /api/v2/problems/{}/move_workspace  # Problems: write: Move a Problem
+PUT /api/v2/problems/{}/notes/{}  # Problems: write: Update a note
+PUT /api/v2/problems/{}/restore  # Problems: write (restore): Restore a Problem
+PUT /api/v2/problems/{}/tasks/{}  # Problems: write: Update a Task
+PUT /api/v2/problems/{}/time_entries/{}  # Problems: write: Update a Time Entry
+PUT /api/v2/products/{}  # Products: write: Update a Product
+PUT /api/v2/projects/{}  # Projects (legacy): write: Update a Project
+PUT /api/v2/projects/{}/tasks/{}  # Projects (legacy): write: Update a Project Task
+PUT /api/v2/purchase_orders/{}  # Purchase orders: write: Update a Purchase Order
+PUT /api/v2/purchase_orders/{}/move_workspace  # Purchase orders: write: Move a Purchase Order
+PUT /api/v2/releases/{}  # Releases: write: Update a Release
+PUT /api/v2/releases/{}/move_workspace  # Releases: write: Move a Release
+PUT /api/v2/releases/{}/notes/{}  # Releases: write: Update a note
+PUT /api/v2/releases/{}/restore  # Releases: write (restore): Restore a Release
+PUT /api/v2/releases/{}/tasks/{}  # Releases: write: Update a Task
+PUT /api/v2/releases/{}/time_entries/{}  # Releases: write: Update a Time Entry
+PUT /api/v2/requester_groups/{}  # Requester groups / Contact groups: write: Update a Requester Group/Contact Group
+PUT /api/v2/requesters/{}  # Requesters / Contacts: write: Update a Requester/Contact
+PUT /api/v2/requesters/{}/convert_to_agent  # Requesters / Contacts: write: Convert To Agent
+PUT /api/v2/requesters/{}/merge  # Requesters / Contacts: write: Merge Requesters/Contacts
+PUT /api/v2/requesters/{}/reactivate  # Requesters / Contacts: write: Reactivate a Requester/Contact
+PUT /api/v2/service-catalog/items/{}  # Service catalog: write: Update a Service Catalog Item
+PUT /api/v2/service-catalog/shared-fields/{}  # Service catalog: write: Update shared fields
+PUT /api/v2/solutions/articles/bulk_restore  # Solutions (knowledge base): write (restore): Bulk Restore Solution Articles
+PUT /api/v2/solutions/articles/{}  # Solutions (knowledge base): write: Publish Solution Article
+PUT /api/v2/solutions/articles/{}/restore  # Solutions (knowledge base): write (restore): Restore Solution Article
+PUT /api/v2/solutions/articles/{}/send_for_approval  # Solutions (knowledge base): write: Send Article to Approval
+PUT /api/v2/solutions/categories/{}  # Solutions (knowledge base): write: Update Solution Category
+PUT /api/v2/solutions/categories/{}/restore  # Solutions (knowledge base): write (restore): Restore Solution Category
+PUT /api/v2/solutions/folders/{}  # Solutions (knowledge base): write: Update Solution Folder
+PUT /api/v2/solutions/folders/{}/restore  # Solutions (knowledge base): write (restore): Restore Solution Folder
+PUT /api/v2/status/pages/{}/subscribers/{}  # Status page: write: Update a subscriber
+PUT /api/v2/tickets/{}  # Tickets: write: Update a Ticket
+PUT /api/v2/tickets/{}/approval-chain-rule  # Ticket approvals: write: Update approval chain rule for a service request
+PUT /api/v2/tickets/{}/approval-groups/{}  # Ticket approvals: write: Cancel Approval Group In A Service Request
+PUT /api/v2/tickets/{}/approvals/{}  # Ticket approvals: write: Cancel an approval
+PUT /api/v2/tickets/{}/approvals/{}/remind  # Ticket approvals: write: Send Reminder for an Approval
+PUT /api/v2/tickets/{}/demote  # Major incidents: write: Demote an incident from a major incident
+PUT /api/v2/tickets/{}/move_workspace  # Tickets: write: Move a Ticket
+PUT /api/v2/tickets/{}/promote  # Major incidents: write: Promote an incident to a major incident
+PUT /api/v2/tickets/{}/requested_items/{}  # Service Requests: write: Update Requested Items of a Service Request
+PUT /api/v2/tickets/{}/restore  # Tickets: write (restore): Restore a Ticket
+PUT /api/v2/tickets/{}/status/pages/{}/incidents/{}  # Status page: write: Update an incident
+PUT /api/v2/tickets/{}/status/pages/{}/incidents/{}/updates/{}  # Status page: write: Edit an incident update
+PUT /api/v2/tickets/{}/tasks/{}  # Ticket tasks: write: Update a Task
+PUT /api/v2/tickets/{}/time_entries/{}  # Tickets: write: Update a Time Entry
+PUT /api/v2/users/{}/delegation  # Delegation: write: Update a delegation
+PUT /api/v2/vendors/{}  # Vendors: write: Update a Vendor
+PUT /api/v2/workspaces/{}  # Workspaces / Clients: write: Update a Client

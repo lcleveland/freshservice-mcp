@@ -1,0 +1,99 @@
+package tools
+
+import "slices"
+
+// Tool is one first-class MCP tool: a set of actions over Freshservice
+// endpoints. Adding an endpoint is adding a View; there is no per-endpoint
+// handler code.
+type Tool struct {
+	Name        string // freshservice_<resource>
+	Group       string
+	Title       string
+	Description string // what it is; per-action help is appended
+	Views       []View
+}
+
+// View is one action of a tool.
+type View struct {
+	Action string
+	Help   string // one line: what this action does and its useful params
+	Method string // default GET
+	// Path may hold {placeholders}: {id} comes from the id input, any other
+	// from params (removed from params once used).
+	Path string
+
+	// Reads.
+	List     bool              // pages through a list; otherwise one object
+	Filter   string            // query param carrying the Freshservice query ("query" or "filter"); makes query required
+	Brief    []string          // fields a list keeps (plus custom_fields) unless fields is given; nil keeps all
+	Defaults map[string]string // params sent unless the caller sets them
+	WS       WSMode
+	AllNote  bool   // workspace "all" returns only global fields (Freshservice drops workspace custom fields)
+	Link     string // agent-portal path for a get, e.g. "/a/tickets/{id}"
+
+	// Summaries: Summary is count, group_by, backlog or trend. Path is the
+	// filter endpoint (Filter its param), ScanPath the plain list.
+	Summary    string
+	Total      bool   // the filter returns "total": count per bucket, not by scanning
+	AllQuery   string // query meaning "everything", for filters that require one
+	ScanPath   string
+	FieldsPath string // form fields whose choices give group_by its buckets
+
+	// Writes. A view with a Capability is a write; every write needs reason.
+	Capability  string
+	Body        bool     // takes the body input
+	Require     []string // body keys that must be present
+	Create      bool     // creates a record: a scoped (WS) create needs an explicit workspace
+	Confirm     string   // confirm must equal this field of the record at ConfirmPath
+	ConfirmPath string   // GET path of the record to confirm against (default: Path)
+	ConfirmIf   string   // only confirm when the body has this key
+	Destructive bool
+}
+
+// WSMode is how a view takes a workspace.
+type WSMode int
+
+const (
+	WSNone   WSMode = iota // account-level: no workspace
+	WSAll                  // workspace_id; "all" sends 0
+	WSGlobal               // workspace_id; "all" sends 1 (global)
+	WSOne                  // workspace_id; "all" is not possible
+)
+
+func (v View) write() bool { return v.Capability != "" }
+
+func (v View) method() string {
+	if v.Method == "" {
+		return "GET"
+	}
+	return v.Method
+}
+
+// Tools is the whole first-class tool table, in registration order.
+func Tools() []Tool {
+	var all []Tool
+	for _, t := range [][]Tool{coreTools, readTools} {
+		all = append(all, t...)
+	}
+	for i := range all {
+		all[i].Views = slices.Concat(all[i].Views, writeViews[all[i].Name], moreWrites[all[i].Name])
+	}
+	return all
+}
+
+// summaries are the count and group_by actions over one resource.
+func summaries(v View) []View {
+	c, g := v, v
+	c.Action, c.Summary = "count", "count"
+	c.Help = "how many records match query (all when omitted)."
+	g.Action, g.Summary = "group_by", "group_by"
+	g.Help = "counts per value of by (e.g. status, priority, group_id, agent_id), optionally within query; values narrows which values to count."
+	if v.Total {
+		c.Help += " One API call."
+		g.Help += " Fixed-value fields cost one API call per value, refused over --max-buckets; other fields scan up to --max-records."
+	} else {
+		c.Help += " Counts by scanning, up to --max-records."
+		g.Help += " Tallies by scanning, up to --max-records."
+	}
+	return []View{c, g}
+}
