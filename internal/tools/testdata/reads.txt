@@ -1,0 +1,218 @@
+# Every documented read in docs/research/freshservice-endpoints.md: METHOD path  # module: operation
+GET /api/v2/agent_fields  # Agents: List all Agent Fields
+GET /api/v2/agents  # Agents: Filter Agents
+GET /api/v2/agents/{}  # Agents: View an Agent
+GET /api/v2/ams/alerts  # Alerts (Alert Management): View Multiple Alerts using Filters
+GET /api/v2/ams/alerts/{}  # Alerts (Alert Management): View an alert
+GET /api/v2/ams/alerts/{}/logs  # Alerts (Alert Management): View all Alert Logs
+GET /api/v2/ams/alerts/{}/notes  # Alerts (Alert Management): View all alert notes
+GET /api/v2/ams/alerts/{}/notes/{}  # Alerts (Alert Management): View an alert note
+GET /api/v2/announcements  # Announcements: List all Announcements
+GET /api/v2/announcements/{}  # Announcements: View an Announcement
+GET /api/v2/applications  # Software: List all Software
+GET /api/v2/applications/{}  # Software: View a Software
+GET /api/v2/applications/{}/installations  # Software: List all installations of a Software
+GET /api/v2/applications/{}/licenses  # Software: List all Licenses
+GET /api/v2/applications/{}/relationships  # Software: List all Relationships for a Software
+GET /api/v2/applications/{}/users  # Software: List all Users of a Software
+GET /api/v2/applications/{}/users/{}  # Software: View a Software User
+GET /api/v2/approvals  # Approvals (cross-module): List all Approvals
+GET /api/v2/asset_types  # Asset types: List all Asset Types
+GET /api/v2/asset_types/{}  # Asset types: View an Asset Type
+GET /api/v2/asset_types/{}/fields  # Asset types: List all Fields of an Asset Type
+GET /api/v2/assets  # Assets / CMDB (classic): Filter Assets
+GET /api/v2/assets/{}  # Assets / CMDB (classic): View an Asset
+GET /api/v2/assets/{}/assignment-history  # Assets / CMDB (classic): Asset Assignment History
+GET /api/v2/assets/{}/components  # Assets / CMDB (classic): List all Asset Components
+GET /api/v2/assets/{}/contracts  # Assets / CMDB (classic): List all associated Contracts
+GET /api/v2/assets/{}/relationships  # Assets / CMDB (classic): List all Relationships for an Asset
+GET /api/v2/assets/{}/requests  # Assets / CMDB (classic): List all Associated Requests
+GET /api/v2/attachments/{}  # Attachments: Download Attachment
+GET /api/v2/business_hours  # Business hours: View List of Business Hours Configurations
+GET /api/v2/business_hours/{}  # Business hours: View a Business Hours Configuration
+GET /api/v2/cabs  # Change Advisory Boards (CABs): List all CABs
+GET /api/v2/cabs/{}  # Change Advisory Boards (CABs): View a CAB
+GET /api/v2/canned_response_folders  # Canned responses: View List of Canned Response Folders
+GET /api/v2/canned_response_folders/{}  # Canned responses: Show a Canned Response Folder
+GET /api/v2/canned_response_folders/{}/canned_responses  # Canned responses: List all Canned Responses In a Folder
+GET /api/v2/canned_responses  # Canned responses: View List of Canned Responses
+GET /api/v2/canned_responses/{}  # Canned responses: Show a Canned Response
+GET /api/v2/change_form_fields  # Changes: List all Change Fields
+GET /api/v2/changes  # Changes: View List of Changes
+GET /api/v2/changes/{}  # Changes: View a Change
+GET /api/v2/changes/{}/approval-groups  # Changes: List all Approval Groups within a Change
+GET /api/v2/changes/{}/approvals  # Changes: List all Change Approvals
+GET /api/v2/changes/{}/approvals/{}  # Changes: View a Change Approval
+GET /api/v2/changes/{}/notes  # Changes: View all Notes
+GET /api/v2/changes/{}/notes/{}  # Changes: View a Note
+GET /api/v2/changes/{}/status/pages/{}/maintenances/{}  # Status page: View a maintenance from a change
+GET /api/v2/changes/{}/status/pages/{}/maintenances/{}/updates  # Status page: List all maintenance updates from a change
+GET /api/v2/changes/{}/status/pages/{}/publishable-services  # Status page: Identify publishable services from a change
+GET /api/v2/changes/{}/tasks  # Changes: View all Tasks
+GET /api/v2/changes/{}/tasks/{}  # Changes: View a Task
+GET /api/v2/changes/{}/time_entries  # Changes: List all Time Entries
+GET /api/v2/changes/{}/time_entries/{}  # Changes: View a Time Entry
+GET /api/v2/contract_types  # Contracts: List all contract types
+GET /api/v2/contract_types/{}/fields  # Contracts: List all fields of a contract type
+GET /api/v2/contracts  # Contracts: List all contracts
+GET /api/v2/contracts/{}  # Contracts: View a contract
+GET /api/v2/contracts/{}/associated-assets  # Contracts: List all associated assets of a contract
+GET /api/v2/contracts/{}/attachments  # Contracts: List all attachments of a contract
+GET /api/v2/department_fields  # Departments / Companies: List all Department Fields
+GET /api/v2/departments  # Departments / Companies: Filter Departments
+GET /api/v2/departments/{}  # Departments / Companies: View a Department
+GET /api/v2/groups  # Agent groups: List all Groups
+GET /api/v2/groups/{}  # Agent groups: View a Group
+GET /api/v2/itam/assets  # ITAM assets (Freshservice IT Asset Management): View list of assets
+GET /api/v2/itam/assets/{}  # ITAM assets (Freshservice IT Asset Management): View an asset
+GET /api/v2/itam/cloud_infrastructures  # ITAM physical subtypes, devices, cloud: View cloud details
+GET /api/v2/itam/devices  # ITAM physical subtypes, devices, cloud: View list of all devices
+GET /api/v2/itam/devices/{}  # ITAM physical subtypes, devices, cloud: View a device
+GET /api/v2/itam/lifecycle_events  # ITAM physical subtypes, devices, cloud: View list of all lifecycle events
+GET /api/v2/itam/lifecycle_events/{}  # ITAM physical subtypes, devices, cloud: View a lifecycle event
+GET /api/v2/itam/physical-subtypes  # ITAM physical subtypes, devices, cloud: View list of physical subtypes
+GET /api/v2/itam/physical-subtypes/{}  # ITAM physical subtypes, devices, cloud: View a physical subtype
+GET /api/v2/itam/resource_relationships  # ITAM physical subtypes, devices, cloud: View list of all cloud resource relationships
+GET /api/v2/itam/resources  # ITAM physical subtypes, devices, cloud: View list of all cloud resources
+GET /api/v2/itam/resources/{}  # ITAM physical subtypes, devices, cloud: View a cloud resource
+GET /api/v2/itil_attachments/{}  # Attachments: Download Purchase order and Contracts Attachment
+GET /api/v2/journeys/configs  # Journeys: View List of Published Journeys Configs
+GET /api/v2/journeys/configs/{}/data-fields  # Journeys: View Journey Initiator Config Form Fields
+GET /api/v2/journeys/requests  # Journeys: View List of Journey Requests
+GET /api/v2/journeys/requests/{}  # Journeys: View a Journey Request
+GET /api/v2/journeys/requests/{}/activities  # Journeys: View Journey Request Activities
+GET /api/v2/locations  # Locations: Filter Locations
+GET /api/v2/locations/{}  # Locations: View a Location
+GET /api/v2/maintenance-windows/{}/status/pages/{}/maintenances/{}  # Status page: View a maintenance from a maintenance window
+GET /api/v2/maintenance-windows/{}/status/pages/{}/maintenances/{}/updates  # Status page: List all maintenance updates from a maintenance window
+GET /api/v2/maintenance-windows/{}/status/pages/{}/publishable-services  # Status page: Identify publishable services from a maintenance window
+GET /api/v2/objects  # Custom objects: View List of Custom Objects
+GET /api/v2/objects/{}  # Custom objects: Show a Custom Object
+GET /api/v2/objects/{}/records  # Custom objects: List all records of a Custom Object
+GET /api/v2/offboarding_requests  # Employee offboarding: View all Offboarding Requests
+GET /api/v2/offboarding_requests/form  # Employee offboarding: View Offboarding Form Fields
+GET /api/v2/offboarding_requests/{}  # Employee offboarding: View an Offboarding Request
+GET /api/v2/offboarding_requests/{}/tickets  # Employee offboarding: View Offboarding Tickets
+GET /api/v2/onboarding_requests  # Employee onboarding: View all Onboarding Requests
+GET /api/v2/onboarding_requests/form  # Employee onboarding: View Onboarding Form Fields
+GET /api/v2/onboarding_requests/{}  # Employee onboarding: View an Onboarding Request
+GET /api/v2/onboarding_requests/{}/tickets  # Employee onboarding: View Onboarding Tickets
+GET /api/v2/oncall/shift-events  # On-call management: View oncall calendar events for a schedule
+GET /api/v2/oncall/shift-events/current  # On-call management: View who is oncall
+GET /api/v2/oncall/shift-events/export  # On-call management: Export oncall calendar events as an .ical file for a schedule
+GET /api/v2/oncall/ws/{}/schedules  # On-call management: Filter schedules
+GET /api/v2/oncall/ws/{}/schedules/{}  # On-call management: View a schedule
+GET /api/v2/oncall/ws/{}/schedules/{}/escalation-policies  # On-call management: View all escalation policies
+GET /api/v2/oncall/ws/{}/schedules/{}/escalation-policies/{}  # On-call management: View an escalation policy
+GET /api/v2/oncall/ws/{}/schedules/{}/shifts  # On-call management: View all shifts
+GET /api/v2/oncall/ws/{}/schedules/{}/shifts/{}  # On-call management: View a shift
+GET /api/v2/pm/project-fields  # Projects (new-gen, /pm): View Project Fields
+GET /api/v2/pm/project_templates  # Projects (new-gen, /pm): View Project Templates
+GET /api/v2/pm/projects  # Projects (new-gen, /pm): List all Projects
+GET /api/v2/pm/projects/{}  # Projects (new-gen, /pm): View a Project
+GET /api/v2/pm/projects/{}/memberships  # Projects (new-gen, /pm): View Project Memberships
+GET /api/v2/pm/projects/{}/sprints  # Projects (new-gen, /pm): View Project Sprints
+GET /api/v2/pm/projects/{}/task-priorities  # Projects (new-gen, /pm): View Project Task Priorities
+GET /api/v2/pm/projects/{}/task-statuses  # Projects (new-gen, /pm): View Project Task Statuses
+GET /api/v2/pm/projects/{}/task-types  # Projects (new-gen, /pm): View Project Task Types
+GET /api/v2/pm/projects/{}/task-types/{}/fields  # Projects (new-gen, /pm): View Project Task Type Fields
+GET /api/v2/pm/projects/{}/tasks  # Projects (new-gen, /pm): List all Project Tasks
+GET /api/v2/pm/projects/{}/tasks/filter  # Projects (new-gen, /pm): Filter all Project Tasks
+GET /api/v2/pm/projects/{}/tasks/{}  # Projects (new-gen, /pm): View a Project Task
+GET /api/v2/pm/projects/{}/tasks/{}/notes  # Projects (new-gen, /pm): View Notes
+GET /api/v2/pm/projects/{}/tasks/{}/{}  # Projects (new-gen, /pm): View Associations
+GET /api/v2/pm/projects/{}/versions  # Projects (new-gen, /pm): View Project Versions
+GET /api/v2/pm/projects/{}/{}  # Projects (new-gen, /pm): View Associations
+GET /api/v2/post-incident-reports/templates  # Post-incident report templates: Get all post-incident report templates
+GET /api/v2/post-incident-reports/templates/{}  # Post-incident report templates: Get post-incident report templates by ID
+GET /api/v2/problem_form_fields  # Problems: List all Problem Fields
+GET /api/v2/problems  # Problems: View List of Problems
+GET /api/v2/problems/{}  # Problems: View a Problem
+GET /api/v2/problems/{}/notes  # Problems: View all notes
+GET /api/v2/problems/{}/notes/{}  # Problems: View a note
+GET /api/v2/problems/{}/tasks  # Problems: View all Tasks
+GET /api/v2/problems/{}/tasks/{}  # Problems: View a Task
+GET /api/v2/problems/{}/time_entries  # Problems: List all Time Entries
+GET /api/v2/problems/{}/time_entries/{}  # Problems: View a Time Entry
+GET /api/v2/products  # Products: List all Products
+GET /api/v2/products/{}  # Products: View a Product
+GET /api/v2/projects  # Projects (legacy): List all Projects
+GET /api/v2/projects/{}  # Projects (legacy): View a Project
+GET /api/v2/projects/{}/tasks  # Projects (legacy): List all Project Tasks
+GET /api/v2/projects/{}/tasks/{}  # Projects (legacy): View a Project Task
+GET /api/v2/purchase_orders  # Purchase orders: List all Purchase Orders
+GET /api/v2/purchase_orders/{}  # Purchase orders: View a Purchase Order
+GET /api/v2/relationship_types  # Assets / CMDB (classic): List all Relationship Types
+GET /api/v2/relationships  # Assets / CMDB (classic): List all Relationships in the Account
+GET /api/v2/relationships/{}  # Assets / CMDB (classic): View a Relationship
+GET /api/v2/release_form_fields  # Releases: View all Release Fields
+GET /api/v2/releases  # Releases: Filter Releases
+GET /api/v2/releases/{}  # Releases: View a Release
+GET /api/v2/releases/{}/notes  # Releases: View all notes
+GET /api/v2/releases/{}/notes/{}  # Releases: View a note
+GET /api/v2/releases/{}/tasks  # Releases: View all Tasks
+GET /api/v2/releases/{}/tasks/{}  # Releases: View a Task
+GET /api/v2/releases/{}/time_entries  # Releases: List all Time Entries
+GET /api/v2/releases/{}/time_entries/{}  # Releases: View a Time Entry
+GET /api/v2/requester_fields  # Requesters / Contacts: List All Requester/Contact Fields
+GET /api/v2/requester_groups  # Requester groups / Contact groups: List All Requester Groups/Contact Groups
+GET /api/v2/requester_groups/{}  # Requester groups / Contact groups: View a Requester Group/Contact Group
+GET /api/v2/requester_groups/{}/members  # Requester groups / Contact groups: List Requester/Contact Group Members
+GET /api/v2/requesters  # Requesters / Contacts: Filter Requester/Contact
+GET /api/v2/requesters/{}  # Requesters / Contacts: View a Requester/Contact
+GET /api/v2/roles  # Agent roles: List all Roles
+GET /api/v2/roles/{}  # Agent roles: View a Role
+GET /api/v2/service-catalog/shared-fields  # Service catalog: List all shared fields based on search
+GET /api/v2/service-catalog/shared-fields/{}  # Service catalog: Retrieve shared fields data
+GET /api/v2/service_catalog/categories  # Service catalog: View List of Service Categories
+GET /api/v2/service_catalog/items  # Service catalog: View List of Service Items
+GET /api/v2/service_catalog/items/search  # Service catalog: Search Service Items
+GET /api/v2/service_catalog/items/{}  # Service catalog: View a Service Item
+GET /api/v2/sla_policies  # SLA policies: View List of SLAs
+GET /api/v2/solutions/articles  # Solutions (knowledge base): View List of Solution Article
+GET /api/v2/solutions/articles/search  # Solutions (knowledge base): Search Solution Articles
+GET /api/v2/solutions/articles/{}  # Solutions (knowledge base): View Solution Article
+GET /api/v2/solutions/categories  # Solutions (knowledge base): View List of Solution Categories
+GET /api/v2/solutions/categories/{}  # Solutions (knowledge base): View Solution Category
+GET /api/v2/solutions/folders  # Solutions (knowledge base): View List of Solution Folder
+GET /api/v2/solutions/folders/{}  # Solutions (knowledge base): View Solution Folder
+GET /api/v2/solutions/folders/{}/sub-folders  # Solutions (knowledge base): View Solution Sub Folders
+GET /api/v2/status/pages  # Status page: List all status pages
+GET /api/v2/status/pages/{}/incidents  # Status page: List all incidents
+GET /api/v2/status/pages/{}/incidents/statuses  # Status page: List all incident statuses
+GET /api/v2/status/pages/{}/maintenances  # Status page: List all maintenances
+GET /api/v2/status/pages/{}/maintenances/statuses  # Status page: List all maintenance statuses
+GET /api/v2/status/pages/{}/service-components  # Status page: List all service components
+GET /api/v2/status/pages/{}/service-components/{}  # Status page: View a service component
+GET /api/v2/status/pages/{}/subscribers  # Status page: List all subscribers
+GET /api/v2/status/pages/{}/subscribers/{}  # Status page: View a subscriber
+GET /api/v2/ticket_form_fields  # Tickets: List all Ticket Fields
+GET /api/v2/tickets  # Tickets: View List of Tickets
+GET /api/v2/tickets/filter  # Tickets: Filter Tickets
+GET /api/v2/tickets/{}  # Tickets: View a Ticket
+GET /api/v2/tickets/{}/activities  # Tickets: Get Ticket Activity
+GET /api/v2/tickets/{}/approval-groups  # Ticket approvals: List all Ticket Approval Groups
+GET /api/v2/tickets/{}/approvals  # Ticket approvals: List all Ticket Approvals
+GET /api/v2/tickets/{}/approvals/{}  # Ticket approvals: View an Approval
+GET /api/v2/tickets/{}/communications  # Collaboration (Email, Zoom): Retrieve emails related to a ticket
+GET /api/v2/tickets/{}/communications/{}  # Collaboration (Email, Zoom): Retrieve specific emails using ID
+GET /api/v2/tickets/{}/conversations  # Conversations: List all Conversations of a Ticket
+GET /api/v2/tickets/{}/csat_response  # CSAT: CSAT Response
+GET /api/v2/tickets/{}/requested_items  # Service Requests: View Requested Items of a Service Request
+GET /api/v2/tickets/{}/status/pages/{}/incidents/{}  # Status page: View an incident
+GET /api/v2/tickets/{}/status/pages/{}/incidents/{}/updates  # Status page: List all updates for an incident
+GET /api/v2/tickets/{}/status/pages/{}/publishable-services  # Status page: Identify publishable services from a ticket
+GET /api/v2/tickets/{}/tasks  # Ticket tasks: View all Tasks
+GET /api/v2/tickets/{}/tasks/{}  # Ticket tasks: View a Task
+GET /api/v2/tickets/{}/time_entries  # Tickets: List all Time Entries of a Ticket
+GET /api/v2/tickets/{}/time_entries/{}  # Tickets: View a Time Entry
+GET /api/v2/users/{}/assignment-history  # Agents: User Assignment History
+GET /api/v2/users/{}/delegation  # Delegation: View a delegation
+GET /api/v2/vendors  # Vendors: List all Vendors
+GET /api/v2/vendors/{}  # Vendors: View a Vendor
+GET /api/v2/workspace_form_fields  # Workspaces / Clients: List All Client Fields
+GET /api/v2/workspaces  # Workspaces / Clients: Filter Clients
+GET /api/v2/workspaces/{}  # Workspaces / Clients: View a Workspace / Client
+POST /api/v2/audit_log/export  # Audit logs: Audit Log Export
+POST /api/v2/journeys/requests/view  # Journeys: Filter Journey Requests
+POST /api/v2/post-incident-reports/templates/{}/export  # Post-incident report templates: Export the post-incident report template

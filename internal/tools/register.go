@@ -24,6 +24,9 @@ func Register(s *mcp.Server, d Deps) int {
 	registerStatus(s, d)
 	n := 1
 	for _, t := range Tools() {
+		if !d.Config.GroupOn(t.Group) {
+			continue
+		}
 		must(t.Name, registerTool(s, d, t))
 		n++
 	}

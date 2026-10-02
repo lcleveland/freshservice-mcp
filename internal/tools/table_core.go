@@ -14,6 +14,7 @@ var coreTools = []Tool{
 		Views: []View{
 			{Action: "list", Help: "workspaces the API key's agent can see, with primary and restricted flags.", Path: "/api/v2/workspaces", List: true},
 			{Action: "get", Help: "workspace id.", Path: "/api/v2/workspaces/{id}"},
+			{Action: "fields", Help: "workspace (client) form fields; MSP accounts only.", Path: "/api/v2/workspace_form_fields"},
 		}},
 	{Name: "freshservice_ticket", Group: "core", Title: "Tickets and service requests",
 		Description: "Freshservice tickets: incidents and service requests, with their conversations, tasks, time entries, approvals and CSAT. " +
@@ -38,6 +39,10 @@ var coreTools = []Tool{
 			{Action: "approval_groups", Help: "approval groups of ticket id.", Path: "/api/v2/tickets/{id}/approval-groups"},
 			{Action: "requested_items", Help: "catalog items requested by service request id.", Path: "/api/v2/tickets/{id}/requested_items", List: true},
 			{Action: "csat", Help: "CSAT survey response of ticket id.", Path: "/api/v2/tickets/{id}/csat_response"},
+			{Action: "emails", Help: "email collaboration threads of ticket id.", Path: "/api/v2/tickets/{id}/communications", List: true},
+			{Action: "email", Help: "email params.email_id of ticket id.", Path: "/api/v2/tickets/{id}/communications/{email_id}"},
+			{Action: "all_approvals", Help: "approvals across tickets, changes and releases; params parent (ticket|change|release), status (requested|approved|rejected|cancelled).",
+				Path: "/api/v2/approvals", List: true},
 		}},
 	{Name: "freshservice_requester", Group: "core", Title: "Requesters and requester groups",
 		Description: "People who raise tickets, and requester groups. Account-level: requesters are shared by every workspace.",
@@ -65,6 +70,7 @@ var coreTools = []Tool{
 			{Action: "group", Help: "agent group id.", Path: "/api/v2/groups/{id}"},
 			{Action: "roles", Help: "agent roles.", Path: "/api/v2/roles", List: true},
 			{Action: "role", Help: "agent role id.", Path: "/api/v2/roles/{id}"},
+			{Action: "delegation", Help: "approval delegation set by user id.", Path: "/api/v2/users/{id}/delegation"},
 		}},
 	{Name: "freshservice_lookup", Group: "core", Title: "Departments, locations, SLAs and canned responses",
 		Description: "Reference data tickets point at: departments, locations, business hours, SLA policies and canned responses.",
@@ -82,6 +88,7 @@ var coreTools = []Tool{
 			{Action: "canned_responses", Help: "canned responses (workspace \"all\" means the global ones).", Path: "/api/v2/canned_responses", List: true, WS: WSGlobal},
 			{Action: "canned_response", Help: "canned response id.", Path: "/api/v2/canned_responses/{id}"},
 			{Action: "canned_response_folders", Help: "canned response folders.", Path: "/api/v2/canned_response_folders", List: true, WS: WSGlobal},
-			{Action: "canned_response_folder", Help: "canned responses in folder id.", Path: "/api/v2/canned_response_folders/{id}/canned_responses", List: true},
+			{Action: "canned_response_folder", Help: "canned response folder id.", Path: "/api/v2/canned_response_folders/{id}"},
+			{Action: "folder_responses", Help: "canned responses in folder id.", Path: "/api/v2/canned_response_folders/{id}/canned_responses", List: true},
 		}},
 }

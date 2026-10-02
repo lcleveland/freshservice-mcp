@@ -70,16 +70,28 @@ func (d Deps) read(ctx context.Context, tool string, v View, in Input) (any, err
 	if err != nil {
 		return nil, err
 	}
-	path, err := fill(v.Path, in.ID, q)
-	if err != nil {
-		return nil, err
-	}
 	for k, x := range v.Defaults {
 		if !q.Has(k) {
 			q.Set(k, x)
 		}
 	}
+	// Workspace first: on-call carries it in the path ({workspace_id}).
 	all, err := d.workspace(ctx, v, in, q)
+	if err != nil {
+		return nil, err
+	}
+	p := v.Path
+	if strings.Contains(p, "{assets}") {
+		a, err := d.Client.Account(ctx, d.Config.DefaultWorkspace)
+		if err != nil {
+			return nil, err
+		}
+		if a.AssetPath == "" {
+			return nil, errors.New("this account answers neither the classic nor the ITAM asset API (plan or the API key's permissions); freshservice_status shows which is available")
+		}
+		p = strings.Replace(p, "{assets}", a.AssetPath, 1)
+	}
+	path, err := fill(p, in.ID, q)
 	if err != nil {
 		return nil, err
 	}

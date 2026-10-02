@@ -50,7 +50,7 @@ func (v View) method() string {
 // Tools is the whole first-class tool table, in registration order.
 func Tools() []Tool {
 	var all []Tool
-	for _, t := range [][]Tool{coreTools} {
+	for _, t := range [][]Tool{coreTools, readTools} {
 		all = append(all, t...)
 	}
 	return all

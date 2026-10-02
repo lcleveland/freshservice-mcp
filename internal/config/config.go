@@ -15,6 +15,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -23,8 +24,9 @@ import (
 type Config struct {
 	BaseURL          *url.URL // https://<sub>.freshservice.com, no /api/v2
 	APIKey           string
-	DefaultWorkspace string // id or name; empty means the primary workspace
-	MaxRecords       int    // cap on records one list call may return
+	DefaultWorkspace string   // id or name; empty means the primary workspace
+	MaxRecords       int      // cap on records one list call may return
+	Groups           []string // tool groups to register; empty means all
 	RequestTimeout   time.Duration
 	LogLevel         slog.Level
 
@@ -42,7 +44,16 @@ func (c *Config) LogValue() slog.Value {
 		slog.Bool("api_key_set", c.APIKey != ""),
 		slog.String("default_workspace", c.DefaultWorkspace),
 		slog.Int("max_records", c.MaxRecords),
+		slog.Any("groups", c.Groups),
 	)
+}
+
+// Groups are the tool groups --tool-groups may name. core is always on.
+var Groups = []string{"core", "itil", "assets", "knowledge", "catalog", "projects", "ops", "custom"}
+
+// GroupOn reports whether a tool group is on.
+func (c *Config) GroupOn(group string) bool {
+	return group == "core" || len(c.Groups) == 0 || slices.Contains(c.Groups, group)
 }
 
 // Parse reads args and the environment. getenv is injected for tests.
@@ -51,6 +62,7 @@ func Parse(args []string, getenv func(string) string) (*Config, []string, error)
 	var (
 		c                         Config
 		domain, keyFile, logLevel string
+		groups                    string
 		warnings                  []string
 	)
 	fs := flag.NewFlagSet("freshservice-mcp", flag.ContinueOnError)
@@ -59,6 +71,7 @@ func Parse(args []string, getenv func(string) string) (*Config, []string, error)
 	fs.StringVar(&keyFile, "api-key-file", getenv("FRESHSERVICE_API_KEY_FILE"), "file holding the agent API key (env FRESHSERVICE_API_KEY_FILE)")
 	fs.StringVar(&c.DefaultWorkspace, "default-workspace", getenv("FRESHSERVICE_DEFAULT_WORKSPACE"), "workspace id or name used when a call names none (default: the primary workspace) (env FRESHSERVICE_DEFAULT_WORKSPACE)")
 	fs.IntVar(&c.MaxRecords, "max-records", atoi(getenv("FRESHSERVICE_MAX_RECORDS"), 2000), "most records one list call may return (env FRESHSERVICE_MAX_RECORDS)")
+	fs.StringVar(&groups, "tool-groups", getenv("FRESHSERVICE_TOOL_GROUPS"), "comma-separated tool groups to enable (default all): "+strings.Join(Groups, ",")+" (env FRESHSERVICE_TOOL_GROUPS)")
 	fs.DurationVar(&c.RequestTimeout, "request-timeout", 30*time.Second, "per-request timeout to Freshservice")
 	fs.StringVar(&logLevel, "log-level", or(getenv("FRESHSERVICE_MCP_LOG_LEVEL"), "info"), "debug|info|warn|error (env FRESHSERVICE_MCP_LOG_LEVEL)")
 	fs.BoolVar(&c.ShowVersion, "version", false, "print version and exit")
@@ -82,6 +95,16 @@ func Parse(args []string, getenv func(string) string) (*Config, []string, error)
 
 	if c.MaxRecords < 1 {
 		return nil, nil, errors.New("--max-records must be at least 1")
+	}
+
+	if groups != "" {
+		for g := range strings.SplitSeq(groups, ",") {
+			g = strings.TrimSpace(g)
+			if !slices.Contains(Groups, g) {
+				return nil, nil, fmt.Errorf("--tool-groups: unknown group %q (want %s)", g, strings.Join(Groups, ","))
+			}
+			c.Groups = append(c.Groups, g)
+		}
 	}
 
 	u, err := baseURL(domain)
