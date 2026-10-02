@@ -29,7 +29,7 @@ type View struct {
 	Defaults map[string]string // params sent unless the caller sets them
 	WS       WSMode
 	AllNote  bool   // workspace "all" returns only global fields (Freshservice drops workspace custom fields)
-	Link     string // agent-portal path for a get, e.g. "/a/tickets/{id}"
+	Link     string // agent-portal path for a get, e.g. "/helpdesk/tickets/{id}"
 
 	// Summaries: Summary is count, group_by, backlog or trend. Path is the
 	// filter endpoint (Filter its param), ScanPath the plain list.

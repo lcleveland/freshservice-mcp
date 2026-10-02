@@ -29,7 +29,7 @@ var coreTools = []Tool{
 			{Action: "filter", Help: "tickets matching query (fields: status, priority, group_id, agent_id, requester_id, type, source, tag, created_at, updated_at, due_by, fr_due_by, custom fields); returns total. Always newest first.",
 				Path: "/api/v2/tickets/filter", List: true, Filter: "query", Brief: ticketBrief, WS: WSAll, AllNote: true},
 			{Action: "get", Help: "ticket id in full; params include (conversations, requester, requested_for, stats, problem, assets, change, related_tickets).",
-				Path: "/api/v2/tickets/{id}", Link: "/a/tickets/{id}"},
+				Path: "/api/v2/tickets/{id}", Link: "/helpdesk/tickets/{id}"},
 			{Action: "fields", Help: "ticket form fields, with the choices for status, priority, type and custom fields.", Path: "/api/v2/ticket_form_fields", WS: WSOne},
 			{Action: "activities", Help: "activity log of ticket id.", Path: "/api/v2/tickets/{id}/activities"},
 			{Action: "conversations", Help: "replies and notes of ticket id.", Path: "/api/v2/tickets/{id}/conversations", List: true},

@@ -15,8 +15,10 @@ import (
 
 const (
 	defaultLimit = 500
-	perPage      = 100      // Freshservice's maximum
-	filterPage   = 30       // filter endpoints' fixed page size
+	perPage      = 100   // Freshservice's maximum
+	filterPage   = 30    // the asset filter's fixed page size
+	filterWindow = 10000 // ticketFilter returns nothing past its first 10,000 matches
+	ticketFilter = "/api/v2/tickets/filter"
 	maxQuery     = 512      // Freshservice's filter query limit
 	maxBytes     = 60 << 10 // keeps a result inside a sensible slice of context
 )
@@ -210,22 +212,22 @@ func (d Deps) list(ctx context.Context, key string, v View, path string, q url.V
 	if err != nil {
 		return nil, err
 	}
-	size := perPage
-	if v.Filter != "" {
-		size = filterPage // and per_page is not sent: filters ignore or reject it
-	} else {
-		q.Set("per_page", strconv.Itoa(perPage))
-	}
+	size := pageSize(q)
 
 	var (
-		items []any
-		after []pos // after[i] is where the list resumes after items[i]
-		total any
-		next  *pos
-		cur   = at
+		items  []any
+		after  []pos // after[i] is where the list resumes after items[i]
+		total  any
+		next   *pos
+		cur    = at
+		capped bool
 	)
 pages:
 	for {
+		if path == ticketFilter && (cur.page-1)*size >= filterWindow {
+			capped = true
+			break
+		}
 		q.Set("page", strconv.Itoa(cur.page))
 		resp, err := d.Client.Do(ctx, v.method(), path, q, nil)
 		if err != nil {
@@ -280,6 +282,9 @@ pages:
 			"note": "result too large; next_cursor resumes after the last item returned. Pass fields, narrow the query, or lower limit"}
 		next = &after[len(items)-1]
 	}
+	if capped && next == nil {
+		out["_truncation"] = map[string]any{"note": "the ticket filter stops at its first 10,000 matches; narrow the query (e.g. by created_at) for the rest"}
+	}
 	if next != nil {
 		out["next_cursor"] = encodeCursor(key, *next)
 	}
@@ -291,6 +296,16 @@ pages:
 	}
 	out["results"] = items
 	return out, nil
+}
+
+// pageSize asks for 100 per page and returns the page size, except on the
+// asset filter, which rejects per_page and pages by 30.
+func pageSize(q url.Values) int {
+	if q.Has("filter") {
+		return filterPage
+	}
+	q.Set("per_page", strconv.Itoa(perPage))
+	return perPage
 }
 
 // hasNext reads the Link header when Freshservice sends one; otherwise a full
