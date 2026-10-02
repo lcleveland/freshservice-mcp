@@ -19,3 +19,7 @@ _Avoid_: User, customer, end user
 **Capability**:
 An operator-enabled class of writes (for example, ticket updates) that unlocks a set of write actions; reads never need one.
 _Avoid_: Permission, scope, verb flag
+
+**Display ID**:
+The asset number agents see in Freshservice, which identifies an asset; distinct from the asset's internal id.
+_Avoid_: Asset id, asset tag
