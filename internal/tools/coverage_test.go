@@ -135,3 +135,64 @@ func TestAssetToolFollowsDetectedAPI(t *testing.T) {
 		}
 	}
 }
+
+func TestEveryDocumentedWriteIsMappedOrRefused(t *testing.T) {
+	mapped := map[string][]string{}
+	for _, tl := range Tools() {
+		for _, v := range tl.Views {
+			if !v.write() {
+				continue
+			}
+			for _, op := range normalize(v.method(), v.Path) {
+				mapped[op] = append(mapped[op], tl.Name+"."+v.Action+" ("+v.Capability+")")
+			}
+		}
+	}
+	for op, note := range inventory(t, "testdata/writes.txt") {
+		_, never := neverExposed(op, note)
+		switch {
+		case len(mapped[op]) == 0 && !never:
+			t.Errorf("documented write neither mapped nor refused: %s (%s)", op, note)
+		case len(mapped[op]) > 0 && never:
+			t.Errorf("%s is refused but mapped to %v", op, mapped[op])
+		}
+	}
+}
+
+// neverExposed says whether a documented write is deliberately not offered,
+// and why. Every delete is refused (docs/adr/0002-capability-map.md).
+func neverExposed(op, note string) (string, bool) {
+	if strings.Contains(note, ": delete") {
+		return "deletes are never exposed", true
+	}
+	why, ok := refusedWrites[op]
+	return why, ok
+}
+
+var refusedWrites = map[string]string{
+	"POST /api/v2/agents":                                                           "agent writes are admin",
+	"PUT /api/v2/agents/{}":                                                         "agent writes are admin",
+	"PUT /api/v2/agents/{}/convert_to_requester":                                    "agent writes are admin",
+	"PUT /api/v2/agents/{}/reactivate":                                              "agent writes are admin",
+	"POST /api/v2/groups":                                                           "agent-group writes are admin",
+	"PUT /api/v2/groups/{}":                                                         "agent-group writes are admin",
+	"POST /api/v2/workspace":                                                        "workspace writes are admin (and MSP-only)",
+	"PUT /api/v2/workspaces/{}":                                                     "workspace writes are admin (and MSP-only)",
+	"PUT /api/v2/requesters/{}/convert_to_agent":                                    "creates an agent: agent writes are admin",
+	"POST /api/v2/ticket_fields/sources":                                            "ticket form configuration is admin",
+	"POST /api/v2/service-catalog/items":                                            "catalog item administration",
+	"PUT /api/v2/service-catalog/items/{}":                                          "catalog item administration",
+	"POST /api/v2/service-catalog/shared-fields":                                    "catalog item administration",
+	"PUT /api/v2/service-catalog/shared-fields/{}":                                  "catalog item administration",
+	"POST /api/v2/service-catalog/shared-fields/{}/archive":                         "catalog item administration",
+	"POST /api/v2/service-catalog/shared-fields/{}/unarchive":                       "catalog item administration",
+	"PUT /api/v2/itam/custom_fields/assets":                                         "custom field definitions are admin",
+	"PUT /api/v2/itam/custom_fields/cloudinfrastructures":                           "custom field definitions are admin",
+	"PUT /api/v2/itam/custom_fields/devices":                                        "custom field definitions are admin",
+	"PUT /api/v2/itam/custom_fields/resources":                                      "custom field definitions are admin",
+	"PUT /api/v2/oncall/ws/{}/schedules/{}/shifts/{}/rosters/override":              "also deletes overrides, and nothing is deleted through this server",
+	"POST /api/v2/maintenance-windows/{}/status/pages/{}/maintenances":              "status page publishing needs confirm, and a maintenance window has no readable record to confirm against; publish from the change",
+	"POST /api/v2/maintenance-windows/{}/status/pages/{}/maintenances/{}/updates":   "status page publishing needs confirm, and a maintenance window has no readable record to confirm against; publish from the change",
+	"PUT /api/v2/maintenance-windows/{}/status/pages/{}/maintenances/{}":            "status page publishing needs confirm, and a maintenance window has no readable record to confirm against; publish from the change",
+	"PUT /api/v2/maintenance-windows/{}/status/pages/{}/maintenances/{}/updates/{}": "status page publishing needs confirm, and a maintenance window has no readable record to confirm against; publish from the change",
+}

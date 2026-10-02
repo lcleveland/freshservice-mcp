@@ -76,7 +76,7 @@ func Tools() []Tool {
 		all = append(all, t...)
 	}
 	for i := range all {
-		all[i].Views = append(slices.Clip(all[i].Views), writeViews[all[i].Name]...)
+		all[i].Views = slices.Concat(all[i].Views, writeViews[all[i].Name], moreWrites[all[i].Name])
 	}
 	return all
 }

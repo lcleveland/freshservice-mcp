@@ -27,7 +27,22 @@ func (d Deps) write(ctx context.Context, tool string, v View, in Input) (any, er
 	if err != nil {
 		return nil, err
 	}
-	path, err := fill(v.Path, in.ID, q)
+	for k, x := range v.Defaults {
+		q.Set(k, x) // fixed operation params, e.g. contract approve
+	}
+	if v.WS != WSNone && !v.Create {
+		// On-call writes carry the workspace in the path.
+		if _, err := d.workspace(ctx, v, in, q); err != nil {
+			return nil, err
+		}
+	}
+	p := v.Path
+	if strings.Contains(p, "{assets}") {
+		if p, err = d.assetPath(ctx, p); err != nil {
+			return nil, err
+		}
+	}
+	path, err := fill(p, in.ID, q)
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +54,7 @@ func (d Deps) write(ctx context.Context, tool string, v View, in Input) (any, er
 		if body, err = d.createWorkspace(ctx, v, in, body); err != nil {
 			return nil, err
 		}
-	} else if in.Workspace != nil {
+	} else if in.Workspace != nil && v.WS == WSNone {
 		return nil, fmt.Errorf("action %s takes no workspace (only creates of workspace-scoped records do)", v.Action)
 	}
 	if v.Confirm != "" && (v.ConfirmIf == "" || has(body, v.ConfirmIf)) {

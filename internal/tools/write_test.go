@@ -132,7 +132,7 @@ func TestWriteGuards(t *testing.T) {
 }
 
 func TestNoDeleteRoutes(t *testing.T) {
-	unlink := map[string]bool{"remove_group_member": true}
+	unlink := map[string]bool{"remove_group_member": true, "remove_installations": true, "remove_users": true}
 	for _, tl := range Tools() {
 		for _, v := range tl.Views {
 			if v.method() == "DELETE" && !unlink[v.Action] {
@@ -142,5 +142,37 @@ func TestNoDeleteRoutes(t *testing.T) {
 				t.Errorf("%s %s reaches %s", tl.Name, v.Action, v.Path)
 			}
 		}
+	}
+}
+
+func TestApprovalsAndStatusPublishNeedConfirm(t *testing.T) {
+	var sent string
+	cs := session(t, allow("approvals", "ops"), func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.Method == "GET" && r.URL.Path == "/api/v2/contracts/5":
+			jsonOK(w, `{"contract":{"id":5,"name":"Dell support"}}`)
+		case r.Method == "GET" && r.URL.Path == "/api/v2/tickets/42":
+			jsonOK(w, `{"ticket":{"id":42,"subject":"Email down"}}`)
+		case r.Method == "GET":
+			jsonOK(w, `{}`)
+		default:
+			sent = r.Method + " " + r.URL.Path + "?" + r.URL.RawQuery
+			jsonOK(w, `{}`)
+		}
+	})
+	if _, isErr, _ := call(t, cs, "freshservice_contract", map[string]any{"action": "approve", "id": 5, "reason": "r"}); !isErr || sent != "" {
+		t.Errorf("approve without confirm went through: %s", sent)
+	}
+	if _, isErr, text := call(t, cs, "freshservice_contract", map[string]any{"action": "approve", "id": 5, "reason": "r", "confirm": "Dell support"}); isErr || sent != "PUT /api/v2/contracts/5?operation=approve" {
+		t.Errorf("approve: %s %s", sent, text)
+	}
+	sent = ""
+	args := map[string]any{"action": "publish_incident", "id": 42, "reason": "r", "params": map[string]any{"page_id": 9}, "body": map[string]any{"title": "Email outage"}}
+	if _, isErr, _ := call(t, cs, "freshservice_statuspage", args); !isErr || sent != "" {
+		t.Errorf("publish without confirm went through: %s", sent)
+	}
+	args["confirm"] = "Email down"
+	if _, isErr, text := call(t, cs, "freshservice_statuspage", args); isErr || sent != "POST /api/v2/tickets/42/status/pages/9/incidents?" {
+		t.Errorf("publish: %s %s", sent, text)
 	}
 }
