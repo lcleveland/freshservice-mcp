@@ -53,11 +53,17 @@ func (c *Client) Account(ctx context.Context, want string) (*Account, error) {
 		Workspaces []Workspace `json:"workspaces"`
 	}
 	resp, err := c.Do(ctx, http.MethodGet, "/api/v2/workspaces", url.Values{"per_page": {"100"}}, nil)
-	if err != nil {
+	var ae *APIError
+	switch {
+	case errors.As(err, &ae) && (ae.Status == http.StatusNotFound || ae.Status == http.StatusForbidden) && want == "":
+		// No workspaces feature, or the agent may not list them: send no
+		// workspace_id and let Freshservice use the primary.
+	case err != nil:
 		return nil, err
-	}
-	if err := decodeInto(resp, &body); err != nil {
-		return nil, err
+	default:
+		if err := decodeInto(resp, &body); err != nil {
+			return nil, err
+		}
 	}
 	a := &Account{Workspaces: body.Workspaces}
 	if a.Default, err = pick(a.Workspaces, want); err != nil {

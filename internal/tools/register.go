@@ -22,5 +22,18 @@ func Register(s *mcp.Server, d Deps) int {
 		d.Log = slog.New(slog.DiscardHandler)
 	}
 	registerStatus(s, d)
-	return 1
+	n := 1
+	for _, t := range Tools() {
+		must(t.Name, registerTool(s, d, t))
+		n++
+	}
+	return n
+}
+
+// must panics on a schema error: the tool set is static, so only a
+// programming error lands here, and it fails every test.
+func must(name string, err error) {
+	if err != nil {
+		panic(name + ": " + err.Error())
+	}
 }

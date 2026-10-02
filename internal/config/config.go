@@ -15,6 +15,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -23,6 +24,7 @@ type Config struct {
 	BaseURL          *url.URL // https://<sub>.freshservice.com, no /api/v2
 	APIKey           string
 	DefaultWorkspace string // id or name; empty means the primary workspace
+	MaxRecords       int    // cap on records one list call may return
 	RequestTimeout   time.Duration
 	LogLevel         slog.Level
 
@@ -39,6 +41,7 @@ func (c *Config) LogValue() slog.Value {
 		slog.String("base_url", u),
 		slog.Bool("api_key_set", c.APIKey != ""),
 		slog.String("default_workspace", c.DefaultWorkspace),
+		slog.Int("max_records", c.MaxRecords),
 	)
 }
 
@@ -55,6 +58,7 @@ func Parse(args []string, getenv func(string) string) (*Config, []string, error)
 	fs.StringVar(&domain, "domain", getenv("FRESHSERVICE_DOMAIN"), "Freshservice domain: acme, acme.freshservice.com or a full URL (env FRESHSERVICE_DOMAIN)")
 	fs.StringVar(&keyFile, "api-key-file", getenv("FRESHSERVICE_API_KEY_FILE"), "file holding the agent API key (env FRESHSERVICE_API_KEY_FILE)")
 	fs.StringVar(&c.DefaultWorkspace, "default-workspace", getenv("FRESHSERVICE_DEFAULT_WORKSPACE"), "workspace id or name used when a call names none (default: the primary workspace) (env FRESHSERVICE_DEFAULT_WORKSPACE)")
+	fs.IntVar(&c.MaxRecords, "max-records", atoi(getenv("FRESHSERVICE_MAX_RECORDS"), 2000), "most records one list call may return (env FRESHSERVICE_MAX_RECORDS)")
 	fs.DurationVar(&c.RequestTimeout, "request-timeout", 30*time.Second, "per-request timeout to Freshservice")
 	fs.StringVar(&logLevel, "log-level", or(getenv("FRESHSERVICE_MCP_LOG_LEVEL"), "info"), "debug|info|warn|error (env FRESHSERVICE_MCP_LOG_LEVEL)")
 	fs.BoolVar(&c.ShowVersion, "version", false, "print version and exit")
@@ -74,6 +78,10 @@ func Parse(args []string, getenv func(string) string) (*Config, []string, error)
 	}
 	if err := c.LogLevel.UnmarshalText([]byte(logLevel)); err != nil {
 		return nil, nil, fmt.Errorf("--log-level: %w", err)
+	}
+
+	if c.MaxRecords < 1 {
+		return nil, nil, errors.New("--max-records must be at least 1")
 	}
 
 	u, err := baseURL(domain)
@@ -154,4 +162,11 @@ func or(a, b string) string {
 		return a
 	}
 	return b
+}
+
+func atoi(s string, def int) int {
+	if n, err := strconv.Atoi(s); err == nil {
+		return n
+	}
+	return def
 }
