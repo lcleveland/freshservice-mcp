@@ -9,15 +9,21 @@ var agentBrief = []string{"id", "first_name", "last_name", "email", "job_title",
 
 // Core tools: tickets and the people and lookups every ticket refers to.
 var coreTools = []Tool{
+	{Name: "freshservice_workspace", Group: "core", Title: "Workspaces",
+		Description: "Freshservice workspaces (IT, HR, Facilities, ...). Every scoped tool takes workspace as an id, a name or \"all\"; without it the server uses its default workspace (see freshservice_status).",
+		Views: []View{
+			{Action: "list", Help: "workspaces the API key's agent can see, with primary and restricted flags.", Path: "/api/v2/workspaces", List: true},
+			{Action: "get", Help: "workspace id.", Path: "/api/v2/workspaces/{id}"},
+		}},
 	{Name: "freshservice_ticket", Group: "core", Title: "Tickets and service requests",
 		Description: "Freshservice tickets: incidents and service requests, with their conversations, tasks, time entries, approvals and CSAT. " +
 			"status: 2 Open, 3 Pending, 4 Resolved, 5 Closed. priority: 1 Low, 2 Medium, 3 High, 4 Urgent. source: 1 Email, 2 Portal, 3 Phone, 4 Chat, 7 Walk-up, 9 Workflow. " +
 			"Sub-record actions take the ticket as id and the sub-record id in params.",
 		Views: []View{
 			{Action: "list", Help: "tickets, newest first; params updated_since (RFC 3339; default 2000-01-01 so older tickets are included), order_type asc|desc, include (stats, requester).",
-				Path: "/api/v2/tickets", List: true, Brief: ticketBrief, WS: WSAll, Defaults: map[string]string{"updated_since": "2000-01-01T00:00:00Z"}},
+				Path: "/api/v2/tickets", List: true, Brief: ticketBrief, WS: WSAll, AllNote: true, Defaults: map[string]string{"updated_since": "2000-01-01T00:00:00Z"}},
 			{Action: "filter", Help: "tickets matching query (fields: status, priority, group_id, agent_id, requester_id, type, source, tag, created_at, updated_at, due_by, fr_due_by, custom fields); returns total. Always newest first.",
-				Path: "/api/v2/tickets/filter", List: true, Filter: "query", Brief: ticketBrief, WS: WSAll},
+				Path: "/api/v2/tickets/filter", List: true, Filter: "query", Brief: ticketBrief, WS: WSAll, AllNote: true},
 			{Action: "get", Help: "ticket id in full; params include (conversations, requester, requested_for, stats, problem, assets, change, related_tickets).",
 				Path: "/api/v2/tickets/{id}", Link: "/a/tickets/{id}"},
 			{Action: "fields", Help: "ticket form fields, with the choices for status, priority, type and custom fields.", Path: "/api/v2/ticket_form_fields", WS: WSOne},

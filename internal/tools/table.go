@@ -26,6 +26,7 @@ type View struct {
 	Brief    []string          // fields a list keeps (plus custom_fields) unless fields is given; nil keeps all
 	Defaults map[string]string // params sent unless the caller sets them
 	WS       WSMode
+	AllNote  bool   // workspace "all" returns only global fields (Freshservice drops workspace custom fields)
 	Link     string // agent-portal path for a get, e.g. "/a/tickets/{id}"
 }
 

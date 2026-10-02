@@ -79,7 +79,8 @@ func (d Deps) read(ctx context.Context, tool string, v View, in Input) (any, err
 			q.Set(k, x)
 		}
 	}
-	if err := d.workspace(ctx, v, q); err != nil {
+	all, err := d.workspace(ctx, v, in, q)
+	if err != nil {
 		return nil, err
 	}
 	if v.Filter != "" {
@@ -90,7 +91,11 @@ func (d Deps) read(ctx context.Context, tool string, v View, in Input) (any, err
 		q.Set(v.Filter, fq)
 	}
 	if v.List {
-		return d.list(ctx, tool+"."+v.Action, v, path, q, in)
+		out, err := d.list(ctx, tool+"."+v.Action, v, path, q, in)
+		if err == nil && all && v.AllNote {
+			out["_note"] = "across all workspaces Freshservice returns only global fields: workspace custom fields are omitted. Repeat with one workspace to get them."
+		}
+		return out, err
 	}
 
 	resp, err := d.Client.Do(ctx, v.method(), path, q, nil)
@@ -113,20 +118,55 @@ func (d Deps) read(ctx context.Context, tool string, v View, in Input) (any, err
 	return capBytes(out), nil
 }
 
-// workspace sends the default workspace on scoped views unless the caller
-// already chose one. Omitting workspace_id would silently mean "primary".
-func (d Deps) workspace(ctx context.Context, v View, q url.Values) error {
-	if v.WS == WSNone || q.Has("workspace_id") {
-		return nil
+// workspace sets workspace_id for a scoped view: the caller's choice (id,
+// name or "all", mapped per the view's mode) or else the default workspace.
+// It never leaves it unset, which Freshservice would read as "primary only".
+// It reports whether "all" was used.
+func (d Deps) workspace(ctx context.Context, v View, in Input, q url.Values) (bool, error) {
+	want := scalarString(in.Workspace)
+	if v.WS == WSNone {
+		if want != "" {
+			return false, fmt.Errorf("action %s is account-level; workspace does not apply", v.Action)
+		}
+		return false, nil
+	}
+	if q.Has("workspace_id") && want == "" {
+		return false, nil
+	}
+	if strings.EqualFold(want, "all") {
+		switch v.WS {
+		case WSAll:
+			q.Set("workspace_id", "0")
+		case WSGlobal:
+			q.Set("workspace_id", "1")
+		case WSOne:
+			return false, fmt.Errorf("action %s cannot span workspaces (Freshservice has no all-workspaces view of it); name one workspace", v.Action)
+		}
+		return true, nil
+	}
+	if _, err := strconv.ParseInt(want, 10, 64); err == nil {
+		q.Set("workspace_id", want)
+		return false, nil
 	}
 	a, err := d.Client.Account(ctx, d.Config.DefaultWorkspace)
 	if err != nil {
-		return fmt.Errorf("resolving the default workspace: %w", err)
+		return false, fmt.Errorf("resolving the workspace: %w", err)
 	}
-	if a.Default != nil {
-		q.Set("workspace_id", strconv.FormatInt(a.Default.ID, 10))
+	if want == "" {
+		if a.Default != nil {
+			q.Set("workspace_id", strconv.FormatInt(a.Default.ID, 10))
+		}
+		return false, nil
 	}
-	return nil
+	var known []string
+	for _, w := range a.Workspaces {
+		if strings.EqualFold(w.Name, want) {
+			q.Set("workspace_id", strconv.FormatInt(w.ID, 10))
+			return false, nil
+		}
+		known = append(known, fmt.Sprintf("%d %q", w.ID, w.Name))
+	}
+	return false, fmt.Errorf("no workspace named %q; the API key's agent sees: %s, or \"all\"", want, strings.Join(known, ", "))
 }
 
 // filterQuery validates a Freshservice query and wraps it in the double

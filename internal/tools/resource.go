@@ -12,13 +12,14 @@ import (
 
 // Input is shared by every first-class tool.
 type Input struct {
-	Action string         `json:"action" jsonschema:"what to do"`
-	ID     any            `json:"id,omitempty" jsonschema:"the object id the action needs"`
-	Query  string         `json:"query,omitempty" jsonschema:"filter actions: a Freshservice query, e.g. status:2 AND priority:>3 AND created_at:>'2026-01-01'. Strings in single quotes; AND/OR with parentheses; :> and :< mean >= and <="`
-	Params map[string]any `json:"params,omitempty" jsonschema:"extra query params (and path values the action names), e.g. {\"updated_since\": \"2026-01-01T00:00:00Z\"}"`
-	Fields string         `json:"fields,omitempty" jsonschema:"comma-separated top-level fields to return instead of the default brief set"`
-	Cursor string         `json:"cursor,omitempty" jsonschema:"next_cursor from the previous call of the same action, to get the next page"`
-	Limit  int            `json:"limit,omitempty" jsonschema:"list actions: max items"`
+	Action    string         `json:"action" jsonschema:"what to do"`
+	ID        any            `json:"id,omitempty" jsonschema:"the object id the action needs"`
+	Query     string         `json:"query,omitempty" jsonschema:"filter actions: a Freshservice query, e.g. status:2 AND priority:>3 AND created_at:>'2026-01-01'. Strings in single quotes; AND/OR with parentheses; :> and :< mean >= and <="`
+	Params    map[string]any `json:"params,omitempty" jsonschema:"extra query params (and path values the action names), e.g. {\"updated_since\": \"2026-01-01T00:00:00Z\"}"`
+	Fields    string         `json:"fields,omitempty" jsonschema:"comma-separated top-level fields to return instead of the default brief set"`
+	Cursor    string         `json:"cursor,omitempty" jsonschema:"next_cursor from the previous call of the same action, to get the next page"`
+	Limit     int            `json:"limit,omitempty" jsonschema:"list actions: max items"`
+	Workspace any            `json:"workspace,omitempty" jsonschema:"workspace id, name (e.g. \"HR\") or \"all\"; default: the server's default workspace"`
 }
 
 func registerTool(s *mcp.Server, d Deps, t Tool) error {
@@ -37,6 +38,11 @@ func registerTool(s *mcp.Server, d Deps, t Tool) error {
 	schema.Properties["limit"].Description = fmt.Sprintf("list actions: max items (default %d, max %d)", min(defaultLimit, d.Config.MaxRecords), d.Config.MaxRecords)
 	if !slices.ContainsFunc(views, func(v View) bool { return v.Filter != "" }) {
 		delete(schema.Properties, "query")
+	}
+	if !slices.ContainsFunc(views, func(v View) bool { return v.WS != WSNone }) {
+		delete(schema.Properties, "workspace")
+	} else {
+		schema.Properties["workspace"].Types = []string{"integer", "string"}
 	}
 
 	mcp.AddTool(s, &mcp.Tool{
