@@ -99,6 +99,11 @@ func decodeInto(r *Response, v any) error {
 // retried POST can create a second ticket or send a reply twice.
 func (c *Client) Do(ctx context.Context, method, path string, q url.Values, body any) (*Response, error) {
 	var payload []byte
+	if body == nil && (method == http.MethodPost || method == http.MethodPut || method == http.MethodPatch) {
+		// Freshservice answers 415 to a write without a JSON Content-Type,
+		// even one that takes no body (cancel_approval, restore, ...).
+		body = struct{}{}
+	}
 	if body != nil {
 		var err error
 		if payload, err = json.Marshal(body); err != nil {

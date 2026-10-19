@@ -120,3 +120,16 @@ func TestAccountDiscovery(t *testing.T) {
 		t.Errorf("unknown: %v", err)
 	}
 }
+
+func TestBodilessWriteSendsJSON(t *testing.T) {
+	c := stub(t, func(w http.ResponseWriter, r *http.Request) {
+		b, _ := io.ReadAll(r.Body)
+		if ct := r.Header.Get("Content-Type"); ct != "application/json" || string(b) != "{}" {
+			t.Errorf("Content-Type=%q body=%q", ct, b)
+		}
+		io.WriteString(w, `{}`)
+	})
+	if _, err := c.Do(context.Background(), "PUT", "/api/v2/tickets/1/approvals/2", nil, nil); err != nil {
+		t.Fatal(err)
+	}
+}
