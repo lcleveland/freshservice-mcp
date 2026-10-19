@@ -129,6 +129,12 @@ func TestWriteGuards(t *testing.T) {
 	if isErr {
 		t.Error("plain update needed confirm")
 	}
+
+	// Freshservice reads a bodiless cancel as an empty update (400).
+	_, isErr, text = call(t, cs, "freshservice_ticket", map[string]any{"action": "cancel_approval", "id": 42, "reason": "r", "params": map[string]any{"approval_id": 7}})
+	if s, _ := f.body["approval_status"].(map[string]any); isErr || f.path != "/api/v2/tickets/42/approvals/7" || s["id"] != float64(3) {
+		t.Errorf("cancel_approval: %s %s %v", text, f.path, f.body)
+	}
 }
 
 func TestNoDeleteRoutes(t *testing.T) {

@@ -41,12 +41,13 @@ type View struct {
 
 	// Writes. A view with a Capability is a write; every write needs reason.
 	Capability  string
-	Body        bool     // takes the body input
-	Require     []string // body keys that must be present
-	Create      bool     // creates a record: a scoped (WS) create needs an explicit workspace
-	Confirm     string   // confirm must equal this field of the record at ConfirmPath
-	ConfirmPath string   // GET path of the record to confirm against (default: Path)
-	ConfirmIf   string   // only confirm when the body has this key
+	Body        bool           // takes the body input
+	Send        map[string]any // fixed body for a view without Body, e.g. cancel's approval_status
+	Require     []string       // body keys that must be present
+	Create      bool           // creates a record: a scoped (WS) create needs an explicit workspace
+	Confirm     string         // confirm must equal this field of the record at ConfirmPath
+	ConfirmPath string         // GET path of the record to confirm against (default: Path)
+	ConfirmIf   string         // only confirm when the body has this key
 	Destructive bool
 }
 

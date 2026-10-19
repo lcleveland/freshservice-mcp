@@ -99,7 +99,7 @@ func writeBody(v View, body any) (map[string]any, error) {
 		if body != nil {
 			return nil, fmt.Errorf("action %s takes no body", v.Action)
 		}
-		return nil, nil
+		return maps.Clone(v.Send), nil
 	}
 	m, ok := body.(map[string]any)
 	if body != nil && !ok {
