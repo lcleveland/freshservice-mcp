@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
@@ -60,6 +61,9 @@ func (f *fakeWrites) handler(w http.ResponseWriter, r *http.Request) {
 		jsonOK(w, `{"workspaces":[{"id":2,"name":"IT","primary":true},{"id":3,"name":"HR"}]}`)
 	case r.Method == "GET" && r.URL.Path == "/api/v2/tickets/42":
 		jsonOK(w, `{"ticket":{"id":42,"subject":"Printer on fire"}}`)
+	case r.Method == "GET" && r.URL.Path == "/api/v2/tickets/42/approvals":
+		jsonOK(w, `{"approvals":[{"id":1,"approval_group":{"id":9},"approval_status":{"id":0}},
+			{"id":2,"approval_group":{"id":9},"approval_status":{"id":1}},{"id":3,"approval_group":{"id":8},"approval_status":{"id":0}}]}`)
 	case r.Method == "GET":
 		jsonOK(w, `{}`)
 	default:
@@ -134,6 +138,11 @@ func TestWriteGuards(t *testing.T) {
 	_, isErr, text = call(t, cs, "freshservice_ticket", map[string]any{"action": "cancel_approval", "id": 42, "reason": "r", "params": map[string]any{"approval_id": 7}})
 	if s, _ := f.body["approval_status"].(map[string]any); isErr || f.path != "/api/v2/tickets/42/approvals/7" || s["id"] != float64(3) {
 		t.Errorf("cancel_approval: %s %s %v", text, f.path, f.body)
+	}
+	// The group itself rejects approval_status, so its pending approvals are cancelled instead.
+	out, isErr, text = call(t, cs, "freshservice_ticket", map[string]any{"action": "cancel_approval_group", "id": 42, "reason": "r", "params": map[string]any{"group_id": 9}})
+	if isErr || f.path != "/api/v2/tickets/42/approvals/1" || fmt.Sprint(out["cancelled_approvals"]) != "[1]" {
+		t.Errorf("cancel_approval_group: %s %s %v", text, f.path, out)
 	}
 }
 

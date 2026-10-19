@@ -2,12 +2,14 @@ package tools
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"maps"
 	"net/http"
 	"net/url"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/lcleveland/freshservice-mcp/internal/freshservice"
@@ -58,6 +60,9 @@ func (d Deps) writeAt(ctx context.Context, tool string, v View, in Input, path s
 	if err != nil {
 		return nil, err
 	}
+	if v.Action == "cancel_approval_group" {
+		return d.cancelGroup(ctx, tool, v, in, path, q)
+	}
 	if v.Create && v.WS != WSNone && !(tool == "freshservice_api" && has(body, "workspace_id")) {
 		if body, err = d.createWorkspace(ctx, v, in, body); err != nil {
 			return nil, err
@@ -92,6 +97,49 @@ func (d Deps) writeAt(ctx context.Context, tool string, v View, in Input, path s
 		out["result"] = capBytes(unwrap(r))
 	}
 	return out, nil
+}
+
+// cancelGroup cancels .../approval-groups/{gid} by cancelling each of its
+// pending approvals: Freshservice rejects the documented approval_status body
+// on the group ("Unexpected/invalid field"), and a group with every approval
+// cancelled shows as cancelled.
+func (d Deps) cancelGroup(ctx context.Context, tool string, v View, in Input, path string, q url.Values) (any, error) {
+	base, gid, _ := strings.Cut(path, "/approval-groups/")
+	// ponytail: one page of 100 approvals per record, paginate if a record ever has more
+	resp, err := d.Client.Do(ctx, http.MethodGet, base+"/approvals", url.Values{"per_page": {"100"}}, nil)
+	if err != nil {
+		return nil, err
+	}
+	var list struct {
+		Approvals []struct {
+			ID    int64 `json:"id"`
+			Group struct {
+				ID int64 `json:"id"`
+			} `json:"approval_group"`
+			Status struct {
+				ID int `json:"id"`
+			} `json:"approval_status"`
+		} `json:"approvals"`
+	}
+	if err := json.Unmarshal(resp.Body, &list); err != nil {
+		return nil, fmt.Errorf("decoding approvals: %w", err)
+	}
+	v.Action = "cancel_approval"
+	v.Send = map[string]any{"approval_status": map[string]any{"id": 3}}
+	var done []int64
+	for _, a := range list.Approvals {
+		if strconv.FormatInt(a.Group.ID, 10) != gid || a.Status.ID != 0 { // 0 = requested
+			continue
+		}
+		if _, err := d.writeAt(ctx, tool, v, in, base+"/approvals/"+strconv.FormatInt(a.ID, 10), q, nil); err != nil {
+			return nil, fmt.Errorf("cancelling approval %d (already cancelled: %v): %w", a.ID, done, err)
+		}
+		done = append(done, a.ID)
+	}
+	if len(done) == 0 {
+		return nil, fmt.Errorf("approval group %s has no pending approvals", gid)
+	}
+	return map[string]any{"cancelled_approvals": done}, nil
 }
 
 func writeBody(v View, body any) (map[string]any, error) {

@@ -27,10 +27,8 @@ var writeViews = map[string][]View{
 			Path: "/api/v2/tickets/{id}/approval-chain-rule", Capability: "tickets", Body: true},
 		{Action: "cancel_approval", Help: "cancel approval params.approval_id of ticket id.", Method: "PUT", Path: "/api/v2/tickets/{id}/approvals/{approval_id}", Capability: "tickets",
 			Send: map[string]any{"approval_status": map[string]any{"id": 3}}},
-		{Action: "cancel_approval_group", Help: "cancel approval group params.group_id of service request id.", Method: "PUT",
-			Path: "/api/v2/tickets/{id}/approval-groups/{group_id}", Capability: "tickets",
-			// the docs show a bare id here, unlike the other three cancels
-			Send: map[string]any{"approval_status": 3}},
+		{Action: "cancel_approval_group", Help: "cancel approval group params.group_id of service request id, by cancelling each of its pending approvals.", Method: "PUT",
+			Path: "/api/v2/tickets/{id}/approval-groups/{group_id}", Capability: "tickets"},
 		{Action: "remind_approval", Help: "remind the approver of approval params.approval_id of ticket id.", Method: "PUT",
 			Path: "/api/v2/tickets/{id}/approvals/{approval_id}/remind", Capability: "tickets"},
 		{Action: "add_requested_item", Help: "add a catalog item to service request id; body {service_item_id, quantity, custom_fields}.", Method: "POST",
