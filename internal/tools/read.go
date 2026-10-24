@@ -73,9 +73,17 @@ func (d Deps) read(ctx context.Context, tool string, v View, in Input) (any, err
 		return nil, err
 	}
 	for _, k := range v.Require {
-		if !q.Has(k) {
+		if !v.Body && !q.Has(k) {
 			return nil, fmt.Errorf("params needs %s", strings.Join(v.Require, ", "))
 		}
+	}
+	var body any // a POST read (audit logs) takes its filters as a JSON body
+	if v.Body {
+		b, err := writeBody(v, in.Body)
+		if err != nil {
+			return nil, err
+		}
+		body = b
 	}
 	for k, x := range v.Defaults {
 		if !q.Has(k) {
@@ -117,7 +125,7 @@ func (d Deps) read(ctx context.Context, tool string, v View, in Input) (any, err
 		return out, err
 	}
 
-	resp, err := d.Client.Do(ctx, v.method(), path, q, nil)
+	resp, err := d.Client.Do(ctx, v.method(), path, q, body)
 	if err != nil {
 		return nil, err
 	}

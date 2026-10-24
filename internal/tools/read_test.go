@@ -2,6 +2,7 @@ package tools
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -197,5 +198,22 @@ func TestArticlesNeedFolder(t *testing.T) {
 	}
 	if _, isErr, text := call(t, cs, "freshservice_solution", map[string]any{"action": "articles", "params": map[string]any{"folder_id": 9}}); isErr || !strings.Contains(path, "folder_id=9") {
 		t.Fatalf("with folder_id: %s %s", text, path)
+	}
+}
+
+func TestAuditLogPostsBody(t *testing.T) {
+	var got string
+	cs := session(t, nil, func(w http.ResponseWriter, r *http.Request) {
+		b, _ := io.ReadAll(r.Body)
+		got = r.Method + " " + r.URL.Path + " " + string(b)
+		jsonOK(w, `{"data":[{"what_changed":"Agent"}],"next_page_token":"t2"}`)
+	})
+	if _, isErr, text := call(t, cs, "freshservice_agent", map[string]any{"action": "audit_log", "body": map[string]any{"since": "2026-10-01T00:00:00Z"}}); !isErr || !strings.Contains(text, "body needs since, before") || got != "" {
+		t.Fatalf("missing before: %v %s %s", isErr, text, got)
+	}
+	out, isErr, text := call(t, cs, "freshservice_agent", map[string]any{"action": "audit_log",
+		"body": map[string]any{"since": "2026-10-01T00:00:00Z", "before": "2026-10-20T00:00:00Z", "next_page_token": "t1"}})
+	if isErr || out["next_page_token"] != "t2" || !strings.HasPrefix(got, "POST /api/v2/audit_logs {") || !strings.Contains(got, `"next_page_token":"t1"`) {
+		t.Fatalf("audit_log: %s %v %s", text, out, got)
 	}
 }

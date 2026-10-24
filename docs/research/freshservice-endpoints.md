@@ -104,13 +104,13 @@ Claims marked **(inference)** are my own reasoning and are not documented. Check
 | Post-incident report templates | 7 | 3 | 3 | 1 |
 | SLA policies | 1 | 1 | 0 | 0 |
 | Canned responses | 5 | 5 | 0 | 0 |
-| Audit logs | 1 | 1 | 0 | 0 |
+| Audit logs | 2 | 2 | 0 | 0 |
 | Attachments | 2 | 2 | 0 | 0 |
 | Collaboration (Email, Zoom) | 7 | 4 | 3 | 0 |
 | Status page | 39 | 18 | 14 | 7 |
 | Delegation | 4 | 1 | 2 | 1 |
 | ITAM physical subtypes, devices, cloud | 25 | 10 | 9 | 6 |
-| **Total** | **536** | **242** | **215** | **79** |
+| **Total** | **537** | **243** | **215** | **79** |
 ## Key resource fields
 
 These come from the attribute table at the top of each module in [S1]. `*` = required on create. Every main record also has `id`, `created_at` and `updated_at`, and has `workspace_id` where workspaces apply.
@@ -862,6 +862,7 @@ Products: FS = Freshservice, FSBT = Freshservice for Business Teams, MSP = Fresh
 
 | Operation | Method | Path | Class | OAuth scope | Products |
 |---|---|---|---|---|---|
+| [List Audit Logs](https://api.freshservice.com/#list_audit_logs) (Oct 2026; JSON, `next_page_token` cursor in the body, window at most 90 days) | `POST` | `/api/v2/audit_logs` | read | `freshservice.audit_log.view` | FS |
 | [Audit Log Export](https://api.freshservice.com/#export_audit_logs) | `POST` | `/api/v2/audit_log/export` | read (async export) | `freshservice.audit_log.view` | FS |
 
 ### Attachments

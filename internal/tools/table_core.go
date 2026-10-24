@@ -79,6 +79,9 @@ var coreTools = []Tool{
 			{Action: "roles", Help: "agent roles.", Path: "/api/v2/roles", List: true},
 			{Action: "role", Help: "agent role id.", Path: "/api/v2/roles/{id}"},
 			{Action: "delegation", Help: "approval delegation set by user id.", Path: "/api/v2/users/{id}/delegation"},
+			{Action: "audit_log", Help: "account audit log (who changed agents, groups, workflows, SLAs, settings); body {since, before (RFC 3339, at most 90 days apart, since within 180 days), filters: {type: [agent, group, workflow, ...], actor, agent_id, group_id, workspace_display_id}}. " +
+				"Pass the response's next_page_token back in body for the next page. Needs the agent's audit log permission.",
+				Method: "POST", Path: "/api/v2/audit_logs", Body: true, Require: []string{"since", "before"}},
 		}, summaries(View{Path: "/api/v2/agents", Filter: "query", ScanPath: "/api/v2/agents"})...)},
 	{Name: "freshservice_lookup", Group: "core", Title: "Departments, locations, SLAs and canned responses",
 		Description: "Reference data tickets point at: departments, locations, business hours, SLA policies and canned responses.",

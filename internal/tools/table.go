@@ -41,7 +41,7 @@ type View struct {
 
 	// Writes. A view with a Capability is a write; every write needs reason.
 	Capability  string
-	Body        bool           // takes the body input
+	Body        bool           // takes the body input (also a POST read, e.g. audit logs)
 	Send        map[string]any // fixed body for a view without Body, e.g. cancel's approval_status
 	Require     []string       // body keys that must be present (query params, for a read)
 	Create      bool           // creates a record: a scoped (WS) create needs an explicit workspace

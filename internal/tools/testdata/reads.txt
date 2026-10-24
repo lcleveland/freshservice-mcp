@@ -213,6 +213,7 @@ GET /api/v2/vendors/{}  # Vendors: View a Vendor
 GET /api/v2/workspace_form_fields  # Workspaces / Clients: List All Client Fields
 GET /api/v2/workspaces  # Workspaces / Clients: Filter Clients
 GET /api/v2/workspaces/{}  # Workspaces / Clients: View a Workspace / Client
+POST /api/v2/audit_logs  # Audit logs: List Audit Logs
 POST /api/v2/audit_log/export  # Audit logs: Audit Log Export
 POST /api/v2/journeys/requests/view  # Journeys: Filter Journey Requests
 POST /api/v2/post-incident-reports/templates/{}/export  # Post-incident report templates: Export the post-incident report template
