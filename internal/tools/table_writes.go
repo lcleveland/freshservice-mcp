@@ -19,7 +19,7 @@ var writeViews = map[string][]View{
 		{Action: "create_time_entry", Help: "log time on ticket id; body {agent_id, time_spent (hh:mm), billable, executed_at, note, task_id}.", Method: "POST",
 			Path: "/api/v2/tickets/{id}/time_entries", Capability: "tickets", Body: true, Require: []string{"agent_id"}},
 		{Action: "update_time_entry", Help: "change time entry params.time_entry_id of ticket id.", Method: "PUT", Path: "/api/v2/tickets/{id}/time_entries/{time_entry_id}", Capability: "tickets", Body: true},
-		{Action: "request_approval", Help: "ask for approval on service request id; body {approver_id, approval_type, email_content}.", Method: "POST",
+		{Action: "request_approval", Help: "ask for approval on service request id; body {approver_id, approval_type, email_content}. Freshservice plans to deprecate this; with Parallel Approvals use create_approval_groups.", Method: "POST",
 			Path: "/api/v2/tickets/{id}/approvals", Capability: "tickets", Body: true},
 		{Action: "create_approval_groups", Help: "add approval groups to service request id; body as Freshservice documents.", Method: "POST",
 			Path: "/api/v2/tickets/{id}/approval-groups", Capability: "tickets", Body: true},

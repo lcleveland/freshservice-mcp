@@ -133,7 +133,7 @@ var readTools = []Tool{
 			{Action: "folders", Help: "folders of params.category_id.", Path: "/api/v2/solutions/folders", List: true},
 			{Action: "folder", Help: "folder id.", Path: "/api/v2/solutions/folders/{id}"},
 			{Action: "subfolders", Help: "sub-folders of folder id.", Path: "/api/v2/solutions/folders/{id}/sub-folders", List: true},
-			{Action: "articles", Help: "articles of params.folder_id.", Path: "/api/v2/solutions/articles", List: true,
+			{Action: "articles", Help: "articles of params.folder_id.", Path: "/api/v2/solutions/articles", List: true, Require: []string{"folder_id"},
 				Brief: []string{"id", "title", "status", "folder_id", "category_id", "approval_status", "views", "thumbs_up", "thumbs_down", "updated_at"}},
 			{Action: "search", Help: "articles matching params.search_term; params user_email to search as that user.", Path: "/api/v2/solutions/articles/search", List: true,
 				Brief: []string{"id", "title", "status", "folder_id", "category_id", "updated_at"}},

@@ -705,7 +705,7 @@ Products: FS = Freshservice, FSBT = Freshservice for Business Teams, MSP = Fresh
 | [Publish Solution Article](https://api.freshservice.com/#publish_solution_article) | `PUT` | `/api/v2/solutions/articles/{id}` | write | `freshservice.solutions.publish` | FS, FSBT, MSP |
 | [Update Solution Article](https://api.freshservice.com/#update_solution_article) | `PUT` | `/api/v2/solutions/articles/{id}` | write | `freshservice.solutions.publish` | FS, FSBT, MSP |
 | [View Solution Article](https://api.freshservice.com/#view_solution_article) | `GET` | `/api/v2/solutions/articles/{id}` | read | `freshservice.solutions.view` | FS, FSBT, MSP |
-| [View List of Solution Article](https://api.freshservice.com/#view_all_solution_article) | `GET` | `/api/v2/solutions/articles` | read | `freshservice.solutions.view` | FS, FSBT, MSP |
+| [View List of Solution Article](https://api.freshservice.com/#view_all_solution_article) | `GET` | `/api/v2/solutions/articles?folder_id=[id]` (folder_id required since Oct 2026 [S1 Changelog]) | read | `freshservice.solutions.view` | FS, FSBT, MSP |
 | [Delete Solution Article](https://api.freshservice.com/#delete_solution_article) | `DELETE` | `/api/v2/solutions/articles/{id}` | delete | `freshservice.solutions.delete` | FS, FSBT, MSP |
 | [Restore Solution Article](https://api.freshservice.com/#restore_solution_article) | `PUT` | `/api/v2/solutions/articles/{article_id}/restore` | write (restore) | `freshservice.solutions.delete` | FS, FSBT, MSP |
 | [Permanently Delete Solution Article](https://api.freshservice.com/#delete_forever_solution_article) | `DELETE` | `/api/v2/solutions/articles/{article_id}/delete_forever` | delete (permanent) | `freshservice.solutions.delete` | FS, FSBT, MSP |

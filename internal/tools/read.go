@@ -72,6 +72,11 @@ func (d Deps) read(ctx context.Context, tool string, v View, in Input) (any, err
 	if err != nil {
 		return nil, err
 	}
+	for _, k := range v.Require {
+		if !q.Has(k) {
+			return nil, fmt.Errorf("params needs %s", strings.Join(v.Require, ", "))
+		}
+	}
 	for k, x := range v.Defaults {
 		if !q.Has(k) {
 			q.Set(k, x)

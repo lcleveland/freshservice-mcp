@@ -184,3 +184,18 @@ func TestTicketFilterWindow(t *testing.T) {
 		t.Fatalf("past the window: calls %d, %v %s", calls, out, text)
 	}
 }
+
+// Freshservice made folder_id required on the article list (changelog Oct 2026).
+func TestArticlesNeedFolder(t *testing.T) {
+	var path string
+	cs := session(t, nil, func(w http.ResponseWriter, r *http.Request) {
+		path = r.URL.Path + "?" + r.URL.RawQuery
+		jsonOK(w, `{"articles":[]}`)
+	})
+	if _, isErr, text := call(t, cs, "freshservice_solution", map[string]any{"action": "articles"}); !isErr || !strings.Contains(text, "params needs folder_id") || path != "" {
+		t.Fatalf("no folder_id: %v %s %s", isErr, text, path)
+	}
+	if _, isErr, text := call(t, cs, "freshservice_solution", map[string]any{"action": "articles", "params": map[string]any{"folder_id": 9}}); isErr || !strings.Contains(path, "folder_id=9") {
+		t.Fatalf("with folder_id: %s %s", text, path)
+	}
+}

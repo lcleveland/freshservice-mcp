@@ -43,7 +43,7 @@ type View struct {
 	Capability  string
 	Body        bool           // takes the body input
 	Send        map[string]any // fixed body for a view without Body, e.g. cancel's approval_status
-	Require     []string       // body keys that must be present
+	Require     []string       // body keys that must be present (query params, for a read)
 	Create      bool           // creates a record: a scoped (WS) create needs an explicit workspace
 	Confirm     string         // confirm must equal this field of the record at ConfirmPath
 	ConfirmPath string         // GET path of the record to confirm against (default: Path)
