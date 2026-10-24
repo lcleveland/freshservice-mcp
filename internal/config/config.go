@@ -61,7 +61,7 @@ func (c *Config) LogValue() slog.Value {
 
 // Capabilities are the opt-in write classes, each enabled by --allow-<name>.
 // See docs/adr/0002-capability-map.md.
-var Capabilities = []string{"tickets", "ticket-replies", "itil", "assets", "knowledge", "projects", "people", "approvals", "ops", "custom-objects"}
+var Capabilities = []string{"tickets", "ticket-replies", "itil", "assets", "knowledge", "projects", "people", "approvals", "ops", "custom-objects", "soft-delete"}
 
 // Groups are the tool groups --tool-groups may name. core is always on.
 var Groups = []string{"core", "itil", "assets", "knowledge", "catalog", "projects", "ops", "custom"}

@@ -29,8 +29,12 @@ func instructions(cfg *config.Config) string {
 	if len(on) == 0 {
 		return s + "This server is read-only: every write capability is disabled by the operator. Do not suggest workarounds; ask the user to change the server configuration if a write is needed."
 	}
+	del := "Nothing can be deleted through this server."
+	if cfg.Allow["soft-delete"] {
+		del = "Nothing is permanently deleted: soft-delete only trashes tickets and deactivates users, and each can be undone (restore, reactivate)."
+	}
 	return s + "Enabled write capabilities: " + strings.Join(on, ", ") + ". Writes act as the API key's agent; every write needs a reason, which is audit-logged, and none is retried automatically. " +
-		"Nothing can be deleted through this server. Confirm with the user before anything they would not expect, above all replies that email a requester."
+		del + " Confirm with the user before anything they would not expect, above all replies that email a requester."
 }
 
 // ServeStdio runs until ctx is cancelled. Nothing else may write to stdout.

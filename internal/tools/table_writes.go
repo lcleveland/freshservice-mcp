@@ -1,7 +1,8 @@
 package tools
 
 // writeViews are appended to the read tools they act on. Each names its
-// capability (docs/adr/0002-capability-map.md); deletes never appear here.
+// capability (docs/adr/0002-capability-map.md). The only deletes are the
+// reversible ones under soft-delete, and the unlinks that keep both records.
 var writeViews = map[string][]View{
 	"freshservice_ticket": {
 		// tickets
@@ -38,6 +39,8 @@ var writeViews = map[string][]View{
 		{Action: "move_workspace", Help: "move ticket id to another workspace; body {workspace_id, group_id, responder_id}. confirm = the ticket's subject.", Method: "PUT",
 			Path: "/api/v2/tickets/{id}/move_workspace", Capability: "tickets", Body: true, Require: []string{"workspace_id"}, Confirm: "subject", ConfirmPath: "/api/v2/tickets/{id}"},
 		{Action: "restore", Help: "restore deleted ticket id from trash.", Method: "PUT", Path: "/api/v2/tickets/{id}/restore", Capability: "tickets"},
+		{Action: "trash", Help: "move ticket id to trash (restore undoes it); trashing a parent service request also trashes its children. confirm = the ticket's subject.",
+			Method: "DELETE", Path: "/api/v2/tickets/{id}", Capability: "soft-delete", Confirm: "subject", Destructive: true},
 		// ticket-replies: these email the requester or a third party
 		{Action: "reply", Help: "reply to ticket id; emails the requester. body {body (HTML), cc_emails, bcc_emails}.", Method: "POST", Path: "/api/v2/tickets/{id}/reply",
 			Capability: "ticket-replies", Body: true, Require: []string{"body"}},
@@ -58,6 +61,8 @@ var writeViews = map[string][]View{
 		{Action: "merge", Help: "merge params.secondary_requesters (comma-separated ids) into requester id; the secondaries' tickets move and they are removed. confirm = the primary's primary_email.",
 			Method: "PUT", Path: "/api/v2/requesters/{id}/merge", Capability: "people", Confirm: "primary_email", ConfirmPath: "/api/v2/requesters/{id}", Destructive: true},
 		{Action: "reactivate", Help: "reactivate deactivated requester id.", Method: "PUT", Path: "/api/v2/requesters/{id}/reactivate", Capability: "people"},
+		{Action: "deactivate", Help: "deactivate requester id (reactivate undoes it; their tickets are kept). confirm = the requester's primary_email.",
+			Method: "DELETE", Path: "/api/v2/requesters/{id}", Capability: "soft-delete", Confirm: "primary_email", Destructive: true},
 		{Action: "create_group", Help: "create a requester group; body {name, description}.", Method: "POST", Path: "/api/v2/requester_groups", Capability: "people", Body: true, Require: []string{"name"}},
 		{Action: "update_group", Help: "change requester group id.", Method: "PUT", Path: "/api/v2/requester_groups/{id}", Capability: "people", Body: true},
 		{Action: "add_group_member", Help: "add requester params.requester_id to requester group id.", Method: "POST",

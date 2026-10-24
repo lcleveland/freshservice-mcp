@@ -150,8 +150,8 @@ func TestNoDeleteRoutes(t *testing.T) {
 	unlink := map[string]bool{"remove_group_member": true, "remove_installations": true, "remove_users": true}
 	for _, tl := range Tools() {
 		for _, v := range tl.Views {
-			if v.method() == "DELETE" && !unlink[v.Action] {
-				t.Errorf("%s %s is a DELETE", tl.Name, v.Action)
+			if v.method() == "DELETE" && !unlink[v.Action] && (v.Capability != "soft-delete" || v.Confirm == "") {
+				t.Errorf("%s %s is a DELETE outside soft-delete or without confirm", tl.Name, v.Action)
 			}
 			if strings.Contains(v.Path, "delete_forever") || strings.HasSuffix(v.Path, "/forget") {
 				t.Errorf("%s %s reaches %s", tl.Name, v.Action, v.Path)
@@ -189,5 +189,22 @@ func TestApprovalsAndStatusPublishNeedConfirm(t *testing.T) {
 	args["confirm"] = "Email down"
 	if _, isErr, text := call(t, cs, "freshservice_statuspage", args); isErr || sent != "POST /api/v2/tickets/42/status/pages/9/incidents?" {
 		t.Errorf("publish: %s %s", sent, text)
+	}
+}
+
+func TestSoftDeleteTrashesWithConfirm(t *testing.T) {
+	if a := actionsOf(t, session(t, allow("tickets", "people"), nil), "freshservice_ticket"); slices.Contains(a, "trash") {
+		t.Errorf("soft-delete off but schema has trash")
+	}
+	f := &fakeWrites{}
+	cs := session(t, allow("soft-delete"), f.handler)
+	if _, isErr, _ := call(t, cs, "freshservice_ticket", map[string]any{"action": "trash", "id": 42, "reason": "spam", "confirm": "wrong"}); !isErr || f.method != "" {
+		t.Fatalf("wrong confirm sent %s %s", f.method, f.path)
+	}
+	if _, isErr, text := call(t, cs, "freshservice_ticket", map[string]any{"action": "trash", "id": 42, "reason": "spam", "confirm": "Printer on fire"}); isErr || f.method != "DELETE" || f.path != "/api/v2/tickets/42" {
+		t.Fatalf("trash: %s %s %s", text, f.method, f.path)
+	}
+	if _, isErr, _ := call(t, cs, "freshservice_api", map[string]any{"method": "DELETE", "path": "/api/v2/tickets/42", "reason": "r"}); !isErr {
+		t.Error("freshservice_api sent a DELETE")
 	}
 }

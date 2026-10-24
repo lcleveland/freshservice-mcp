@@ -220,5 +220,7 @@ var moreWrites = map[string][]View{
 		{Action: "set_delegation", Help: "delegate user id's approvals to another agent; body {delegatee_id, start_time, end_time}.", Method: "POST",
 			Path: "/api/v2/users/{id}/delegation", Capability: "approvals", Body: true},
 		{Action: "update_delegation", Help: "change user id's approval delegation.", Method: "PUT", Path: "/api/v2/users/{id}/delegation", Capability: "approvals", Body: true},
+		{Action: "deactivate", Help: "deactivate agent id, freeing their license (Freshservice's agent reactivate undoes it). confirm = the agent's email.",
+			Method: "DELETE", Path: "/api/v2/agents/{id}", Capability: "soft-delete", Confirm: "email", Destructive: true},
 	},
 }

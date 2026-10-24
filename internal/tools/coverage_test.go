@@ -154,13 +154,24 @@ func TestEveryDocumentedWriteIsMappedOrRefused(t *testing.T) {
 		case len(mapped[op]) > 0 && never:
 			t.Errorf("%s is refused but mapped to %v", op, mapped[op])
 		}
+		if reversibleDeletes[op] && (len(mapped[op]) != 1 || !strings.HasSuffix(mapped[op][0], "(soft-delete)")) {
+			t.Errorf("%s must be mapped once, under soft-delete: %v", op, mapped[op])
+		}
 	}
 }
 
+// reversibleDeletes are the only deletes offered, all under soft-delete
+// (docs/adr/0002-capability-map.md): each has a restore or reactivate.
+var reversibleDeletes = map[string]bool{
+	"DELETE /api/v2/tickets/{}":    true,
+	"DELETE /api/v2/requesters/{}": true,
+	"DELETE /api/v2/agents/{}":     true,
+}
+
 // neverExposed says whether a documented write is deliberately not offered,
-// and why. Every delete is refused (docs/adr/0002-capability-map.md).
+// and why. Every other delete is refused (docs/adr/0002-capability-map.md).
 func neverExposed(op, note string) (string, bool) {
-	if strings.Contains(note, ": delete") {
+	if strings.Contains(note, ": delete") && !reversibleDeletes[op] {
 		return "deletes are never exposed", true
 	}
 	why, ok := refusedWrites[op]

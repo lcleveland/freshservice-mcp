@@ -4,7 +4,7 @@ An MCP server for the [Freshservice](https://www.freshworks.com/freshservice/) A
 
 It calls the REST API directly with an agent API key, so unlike the claude.ai Freshservice connector it has no monthly action budget; it does share the account's per-minute rate limit with every other app ([ADR 0001](docs/adr/0001-own-mcp-not-claude-connector.md)).
 
-The server is read-only by default. Writes are turned on per **capability** (tickets, ITIL, assets, ...), every write needs a reason that goes to the audit log, and nothing can be deleted.
+The server is read-only by default. Writes are turned on per **capability** (tickets, ITIL, assets, ...), every write needs a reason that goes to the audit log, and nothing is permanently deleted (the opt-in `soft-delete` capability only trashes tickets and deactivates users).
 
 ## Tools
 
@@ -52,14 +52,15 @@ All are off by default. A disabled capability's actions are removed from the too
 | `--allow-approvals` | contract approve/reject as the API key's agent, approval delegation |
 | `--allow-ops` | status page incidents and maintenances (published from a ticket or change) and subscribers, on-call schedules, shifts and escalation policies, alerts, journeys |
 | `--allow-custom-objects` | custom object record create and update |
+| `--allow-soft-delete` | reversible deletes only: ticket `trash` (undone by `restore`; a parent service request takes its children with it), requester and agent `deactivate` (undone by `reactivate`). Each needs `confirm` |
 
-**Never exposed**, whatever the flags: every delete (including the `PUT` `delete_forever`, user deactivation and the GDPR `forget`), agent, role and agent-group writes, workspace writes, convert to agent, ticket form and catalog item administration, custom field definitions, the on-call roster override (it also deletes), and status page publishing from a maintenance window. The v2 API has no approve/reject for tickets, changes or releases.
+**Never exposed**, whatever the flags: every delete except the `soft-delete` ones and the unlinks that keep both records (including the `PUT` `delete_forever` and the GDPR `forget`), agent, role and agent-group writes, workspace writes, convert to agent, ticket form and catalog item administration, custom field definitions, the on-call roster override (it also deletes), and status page publishing from a maintenance window. The v2 API has no approve/reject for tickets, changes or releases.
 
 Why capabilities rather than create/update/delete flags: Freshservice's HTTP verbs do not track risk. `delete_forever` is a `PUT`, a requester `DELETE` only deactivates, and a ticket update carrying `assets` silently replaces every linked asset. See [ADR 0002](docs/adr/0002-capability-map.md).
 
 **Write safety:**
 - Every write requires `reason`, which goes to the audit log (slog, stderr) with the tool, action, path and status.
-- `confirm` must equal the record's subject or name for: move workspace, requester merge, a ticket update carrying `assets`, contract approve/reject, and every status page publish. A mismatch fails before anything is sent.
+- `confirm` must equal the record's subject or name for: move workspace, requester merge, ticket trash and user deactivation (email), a ticket update carrying `assets`, contract approve/reject, and every status page publish. A mismatch fails before anything is sent.
 - Writes act as the API key's agent and are never retried automatically: Freshservice writes have no idempotency key, so a retried reply is a second email.
 - `freshservice_api` routes every write through the same table as the curated tools, refuses routes it does not know and refuses `DELETE`. A test checks every documented write is either mapped to exactly one capability or refused with a reason.
 
@@ -136,7 +137,7 @@ The module:
 | `enable`, `package` | off, this flake's build | |
 | `domain`, `apiKeyFile` | | the key file is a runtime path string, never a Nix path |
 | `defaultWorkspace` | `null` (primary) | id or name |
-| `allowTickets`, `allowTicketReplies`, `allowItil`, `allowAssets`, `allowKnowledge`, `allowProjects`, `allowPeople`, `allowApprovals`, `allowOps`, `allowCustomObjects` | `false` | one per capability |
+| `allowTickets`, `allowTicketReplies`, `allowItil`, `allowAssets`, `allowKnowledge`, `allowProjects`, `allowPeople`, `allowApprovals`, `allowOps`, `allowCustomObjects`, `allowSoftDelete` | `false` | one per capability |
 | `maxRecords`, `maxBuckets`, `toolGroups` | 2000, 60, all | |
 | `listenAddress`, `port`, `path` | `127.0.0.1`, 8234, `/mcp` | |
 | `bearerTokenFile`, `openFirewall` | none, `false` | |

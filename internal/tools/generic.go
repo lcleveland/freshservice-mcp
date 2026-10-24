@@ -47,7 +47,7 @@ func registerGeneric(s *mcp.Server, d Deps) error {
 		delete(schema.Properties, "workspace")
 		schema.Properties["method"].Enum = []any{"GET"}
 	} else {
-		desc += "Writes are allowed only on documented write routes whose capability is enabled (" + strings.Join(on, ", ") + "), need reason, and are never retried. Nothing can be deleted."
+		desc += "Writes are allowed only on documented write routes whose capability is enabled (" + strings.Join(on, ", ") + "), need reason, and are never retried. DELETE is refused here."
 	}
 	mcp.AddTool(s, &mcp.Tool{
 		Name:        "freshservice_api",
@@ -92,7 +92,7 @@ func (d Deps) generic(ctx context.Context, in APIInput) (any, error) {
 		return capBytes(unwrap(out)), nil
 	}
 	if method == http.MethodDelete {
-		return nil, errors.New("nothing can be deleted through this server")
+		return nil, errors.New("DELETE is refused by freshservice_api; ticket trash and user deactivation are actions on the curated tools, under the soft-delete capability")
 	}
 	for _, v := range d.routes() {
 		if !v.write() || v.method() != method || !matches(v.Path, path) || !fixedParams(v, q) {
