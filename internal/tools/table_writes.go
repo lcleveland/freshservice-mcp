@@ -61,6 +61,8 @@ var writeViews = map[string][]View{
 		{Action: "merge", Help: "merge params.secondary_requesters (comma-separated ids) into requester id; the secondaries' tickets move and they are removed. confirm = the primary's primary_email.",
 			Method: "PUT", Path: "/api/v2/requesters/{id}/merge", Capability: "people", Confirm: "primary_email", ConfirmPath: "/api/v2/requesters/{id}", Destructive: true},
 		{Action: "reactivate", Help: "reactivate deactivated requester id.", Method: "PUT", Path: "/api/v2/requesters/{id}/reactivate", Capability: "people"},
+		{Action: "convert_to_agent", Help: "make requester id an occasional agent with the SD Agent role (uses a license). confirm = the requester's primary_email.", Method: "PUT",
+			Path: "/api/v2/requesters/{id}/convert_to_agent", Capability: "admin", Confirm: "primary_email"},
 		{Action: "deactivate", Help: "deactivate requester id (reactivate undoes it; their tickets are kept). confirm = the requester's primary_email.",
 			Method: "DELETE", Path: "/api/v2/requesters/{id}", Capability: "soft-delete", Confirm: "primary_email", Destructive: true},
 		{Action: "create_group", Help: "create a requester group; body {name, description}.", Method: "POST", Path: "/api/v2/requester_groups", Capability: "people", Body: true, Require: []string{"name"}},

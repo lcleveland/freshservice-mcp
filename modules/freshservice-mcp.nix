@@ -37,6 +37,7 @@ let
     allowOps = "ops";
     allowCustomObjects = "custom-objects";
     allowSoftDelete = "soft-delete";
+    allowAdmin = "admin";
   };
   capabilityHelp = {
     allowTickets = "create and update tickets and service requests, notes, tasks, time entries, approval requests, catalog orders and restores";
@@ -49,6 +50,7 @@ let
     allowApprovals = "approve or reject contracts as the API key's agent, and approval delegation";
     allowOps = "status page publishing, on-call schedules, alerts and journeys";
     allowCustomObjects = "custom object record create and update";
+    allowAdmin = "agent create, update and reactivate, agent and requester conversion, and agent group create and update";
     allowSoftDelete = "reversible deletes only: trash tickets (restore undoes it) and deactivate requesters and agents (reactivate undoes it)";
   };
   isLoopback = a: a == "::1" || a == "localhost" || lib.hasPrefix "127." a;

@@ -113,6 +113,7 @@ in
         check "--allow-people" cmd
         check "--allow-custom-objects" cmd
         refute "--allow-soft-delete" cmd
+        refute "--allow-admin" cmd
         refute "--allow-approvals" cmd
         refute "--allow-ticket-replies" cmd
         check "--default-workspace IT" cmd

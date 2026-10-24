@@ -33,7 +33,8 @@ func TestGenericAPI(t *testing.T) {
 		want string
 	}{
 		{map[string]any{"method": "GET", "path": "/api/v2/secret/thing"}, "not a documented read route"},
-		{map[string]any{"method": "POST", "path": "/api/v2/agents", "reason": "r", "body": map[string]any{}}, "not a documented write route"},
+		{map[string]any{"method": "POST", "path": "/api/v2/workspace", "reason": "r", "body": map[string]any{}}, "not a documented write route"},
+		{map[string]any{"method": "POST", "path": "/api/v2/agents", "reason": "r", "body": map[string]any{}}, "admin capability"},
 		{map[string]any{"method": "POST", "path": "/api/v2/problems", "reason": "r", "body": map[string]any{}}, "itil capability"},
 		{map[string]any{"method": "POST", "path": "/api/v2/tickets/1/notes", "body": map[string]any{"body": "x"}}, "reason is required"},
 		{map[string]any{"method": "PUT", "path": "/api/v2/contracts/5", "params": map[string]any{"operation": "approve"}, "reason": "r"}, "confirm"},

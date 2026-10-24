@@ -208,3 +208,24 @@ func TestSoftDeleteTrashesWithConfirm(t *testing.T) {
 		t.Error("freshservice_api sent a DELETE")
 	}
 }
+
+func TestAdminAgentWrites(t *testing.T) {
+	if a := actionsOf(t, session(t, allow("people"), nil), "freshservice_agent"); slices.Contains(a, "create") {
+		t.Errorf("admin off but schema has %v", a)
+	}
+	f := &fakeWrites{}
+	cs := session(t, allow("admin"), f.handler)
+	if _, isErr, text := call(t, cs, "freshservice_agent", map[string]any{"action": "create_group", "reason": "r", "body": map[string]any{"name": "Field IT"}}); !isErr || !strings.Contains(text, "needs workspace") {
+		t.Errorf("group without workspace: %s", text)
+	}
+	if _, isErr, text := call(t, cs, "freshservice_agent", map[string]any{"action": "create_group", "reason": "r", "workspace": "IT", "body": map[string]any{"name": "Field IT"}}); isErr || f.path != "/api/v2/groups" || f.body["workspace_id"] != float64(2) {
+		t.Errorf("create_group: %s %s %v", text, f.path, f.body)
+	}
+	f.method = ""
+	if _, isErr, _ := call(t, cs, "freshservice_agent", map[string]any{"action": "update", "id": 7, "reason": "r", "body": map[string]any{"roles": []any{}}}); !isErr || f.method != "" {
+		t.Errorf("role change without confirm was sent")
+	}
+	if _, isErr, text := call(t, cs, "freshservice_agent", map[string]any{"action": "update", "id": 7, "reason": "r", "body": map[string]any{"job_title": "Tech"}}); isErr || f.method != "PUT" || f.path != "/api/v2/agents/7" {
+		t.Errorf("plain update: %s %s %s", text, f.method, f.path)
+	}
+}

@@ -179,15 +179,8 @@ func neverExposed(op, note string) (string, bool) {
 }
 
 var refusedWrites = map[string]string{
-	"POST /api/v2/agents":                                                           "agent writes are admin",
-	"PUT /api/v2/agents/{}":                                                         "agent writes are admin",
-	"PUT /api/v2/agents/{}/convert_to_requester":                                    "agent writes are admin",
-	"PUT /api/v2/agents/{}/reactivate":                                              "agent writes are admin",
-	"POST /api/v2/groups":                                                           "agent-group writes are admin",
-	"PUT /api/v2/groups/{}":                                                         "agent-group writes are admin",
 	"POST /api/v2/workspace":                                                        "workspace writes are admin (and MSP-only)",
 	"PUT /api/v2/workspaces/{}":                                                     "workspace writes are admin (and MSP-only)",
-	"PUT /api/v2/requesters/{}/convert_to_agent":                                    "creates an agent: agent writes are admin",
 	"POST /api/v2/ticket_fields/sources":                                            "ticket form configuration is admin",
 	"POST /api/v2/service-catalog/items":                                            "catalog item administration",
 	"PUT /api/v2/service-catalog/items/{}":                                          "catalog item administration",
