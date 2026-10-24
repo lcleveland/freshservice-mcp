@@ -110,6 +110,8 @@ var readTools = []Tool{
 			{Action: "get", Help: "contract id.", Path: "/api/v2/contracts/{id}"},
 			{Action: "assets", Help: "assets covered by contract id.", Path: "/api/v2/contracts/{id}/associated-assets", List: true},
 			{Action: "attachments", Help: "attachments of contract id.", Path: "/api/v2/contracts/{id}/attachments"},
+			{Action: "attachment", Help: "download contract or purchase order attachment id as base64 with content_type; files over 44 KiB return metadata only.",
+				Path: "/api/v2/itil_attachments/{id}", Binary: true},
 			{Action: "types", Help: "contract types.", Path: "/api/v2/contract_types", List: true},
 			{Action: "type_fields", Help: "fields of contract type id.", Path: "/api/v2/contract_types/{id}/fields"},
 		}},

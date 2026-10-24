@@ -14,8 +14,6 @@ import (
 
 // excludedReads are documented reads deliberately left out, with why.
 var excludedReads = map[string]string{
-	"GET /api/v2/attachments/{}":                             "binary file download, not JSON",
-	"GET /api/v2/itil_attachments/{}":                        "binary file download, not JSON",
 	"GET /api/v2/oncall/shift-events/export":                 "returns an .ical file",
 	"POST /api/v2/audit_log/export":                          "starts an asynchronous export delivered out of band",
 	"POST /api/v2/post-incident-reports/templates/{}/export": "renders a file export",

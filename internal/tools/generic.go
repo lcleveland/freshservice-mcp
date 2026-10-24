@@ -73,12 +73,17 @@ func (d Deps) generic(ctx context.Context, in APIInput) (any, error) {
 		return nil, err
 	}
 	if method == http.MethodGet {
-		if !slices.ContainsFunc(d.routes(), func(v View) bool { return v.method() == "GET" && matches(v.Path, path) }) {
+		routes := d.routes()
+		i := slices.IndexFunc(routes, func(v View) bool { return v.method() == "GET" && matches(v.Path, path) })
+		if i < 0 {
 			return nil, fmt.Errorf("GET %s is not a documented read route", path)
 		}
 		resp, err := d.Client.Do(ctx, method, path, q, nil)
 		if err != nil {
 			return nil, err
+		}
+		if routes[i].Binary {
+			return file(resp), nil
 		}
 		out, err := resp.Decode()
 		if err != nil {

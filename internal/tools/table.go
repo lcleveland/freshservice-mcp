@@ -30,6 +30,7 @@ type View struct {
 	WS       WSMode
 	AllNote  bool   // workspace "all" returns only global fields (Freshservice drops workspace custom fields)
 	Link     string // agent-portal path for a get, e.g. "/helpdesk/tickets/{id}"
+	Binary   bool   // returns a file, not JSON: base64 up to maxFile
 
 	// Summaries: Summary is count, group_by, backlog or trend. Path is the
 	// filter endpoint (Filter its param), ScanPath the plain list.

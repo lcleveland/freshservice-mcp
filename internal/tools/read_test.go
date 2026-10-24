@@ -217,3 +217,27 @@ func TestAuditLogPostsBody(t *testing.T) {
 		t.Fatalf("audit_log: %s %v %s", text, out, got)
 	}
 }
+
+func TestAttachmentDownload(t *testing.T) {
+	big := strings.Repeat("x", maxFile+1)
+	cs := session(t, nil, func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/plain")
+		if r.URL.Path == "/api/v2/attachments/2" {
+			w.Write([]byte(big))
+			return
+		}
+		w.Write([]byte("hello"))
+	})
+	out, isErr, text := call(t, cs, "freshservice_ticket", map[string]any{"action": "attachment", "id": 1})
+	if isErr || out["base64"] != "aGVsbG8=" || out["content_type"] != "text/plain" || out["size"] != float64(5) {
+		t.Fatalf("small: %s %v", text, out)
+	}
+	out, _, _ = call(t, cs, "freshservice_ticket", map[string]any{"action": "attachment", "id": 2})
+	if out["base64"] != nil || out["note"] == nil {
+		t.Errorf("over the cap: %v", out)
+	}
+	out, isErr, text = call(t, cs, "freshservice_api", map[string]any{"method": "GET", "path": "/api/v2/itil_attachments/3"})
+	if isErr || out["base64"] != "aGVsbG8=" {
+		t.Errorf("generic: %s %v", text, out)
+	}
+}

@@ -11,6 +11,8 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+
+	"github.com/lcleveland/freshservice-mcp/internal/freshservice"
 )
 
 const (
@@ -21,6 +23,8 @@ const (
 	ticketFilter = "/api/v2/tickets/filter"
 	maxQuery     = 512      // Freshservice's filter query limit
 	maxBytes     = 60 << 10 // keeps a result inside a sensible slice of context
+	// shortcut: files over maxFile come back as metadata only (base64 must fit maxBytes); return MCP image/resource content if bigger screenshots are needed.
+	maxFile = 44 << 10
 )
 
 // fill substitutes {placeholders} in a view's path: {id} from id, the rest
@@ -128,6 +132,9 @@ func (d Deps) read(ctx context.Context, tool string, v View, in Input) (any, err
 	resp, err := d.Client.Do(ctx, v.method(), path, q, body)
 	if err != nil {
 		return nil, err
+	}
+	if v.Binary {
+		return file(resp), nil
 	}
 	out, err := resp.Decode()
 	if err != nil {
@@ -463,4 +470,19 @@ func scalar(k string, v any) (string, error) {
 		return strconv.FormatBool(t), nil
 	}
 	return "", fmt.Errorf("params %q: values must be strings, numbers, booleans or arrays of them", k)
+}
+
+// file returns a downloaded attachment as base64 with its content type, or
+// only the metadata when it is over maxFile.
+func file(r *freshservice.Response) map[string]any {
+	out := map[string]any{"content_type": r.Header.Get("Content-Type"), "size": len(r.Body)}
+	if cd := r.Header.Get("Content-Disposition"); cd != "" {
+		out["content_disposition"] = cd
+	}
+	if len(r.Body) > maxFile {
+		out["note"] = fmt.Sprintf("file is %d bytes; only files up to %d bytes are returned. Open the attachment_url from the record instead", len(r.Body), maxFile)
+		return out
+	}
+	out["base64"] = base64.StdEncoding.EncodeToString(r.Body)
+	return out
 }

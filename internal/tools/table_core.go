@@ -41,6 +41,8 @@ var coreTools = []Tool{
 			{Action: "approval", Help: "approval params.approval_id of ticket id.", Path: "/api/v2/tickets/{id}/approvals/{approval_id}"},
 			{Action: "approval_groups", Help: "approval groups of ticket id.", Path: "/api/v2/tickets/{id}/approval-groups"},
 			{Action: "requested_items", Help: "catalog items requested by service request id.", Path: "/api/v2/tickets/{id}/requested_items", List: true},
+			{Action: "attachment", Help: "download attachment id (from a ticket, conversation, problem, change, release, article or asset's attachments) as base64 with content_type; files over 44 KiB return metadata only.",
+				Path: "/api/v2/attachments/{id}", Binary: true},
 			{Action: "csat", Help: "CSAT survey response of ticket id.", Path: "/api/v2/tickets/{id}/csat_response"},
 			ticketSummary[0], ticketSummary[1],
 			{Action: "emails", Help: "email collaboration threads of ticket id.", Path: "/api/v2/tickets/{id}/communications", List: true},

@@ -10,9 +10,9 @@ The server is read-only by default. Writes are turned on per **capability** (tic
 
 | Group | Tools |
 |---|---|
-| core (always on) | `freshservice_status` (connection, workspaces, asset API and rate-limit probe), `freshservice_api` (any documented `/api/v2/` route, capability-gated), `freshservice_workspace`, `freshservice_ticket` (incidents and service requests, conversations, tasks, time entries, approvals, CSAT, emails), `freshservice_requester` (+ requester groups), `freshservice_agent` (+ agent groups, roles, delegation, account audit log), `freshservice_lookup` (departments, locations, business hours, SLA policies, canned responses) |
+| core (always on) | `freshservice_status` (connection, workspaces, asset API and rate-limit probe), `freshservice_api` (any documented `/api/v2/` route, capability-gated), `freshservice_workspace`, `freshservice_ticket` (incidents and service requests, conversations, tasks, time entries, approvals, CSAT, emails, attachment download up to 44 KiB as base64), `freshservice_requester` (+ requester groups), `freshservice_agent` (+ agent groups, roles, delegation, account audit log), `freshservice_lookup` (departments, locations, business hours, SLA policies, canned responses) |
 | itil | `freshservice_problem`, `freshservice_change` (+ CABs), `freshservice_release` (+ post-incident report templates) |
-| assets | `freshservice_asset` (classic or ITAM, detected; relationships, asset types, ITAM devices and cloud), `freshservice_software`, `freshservice_contract`, `freshservice_procurement` (vendors, products, purchase orders) |
+| assets | `freshservice_asset` (classic or ITAM, detected; relationships, asset types, ITAM devices and cloud), `freshservice_software`, `freshservice_contract` (+ contract and PO attachment download), `freshservice_procurement` (vendors, products, purchase orders) |
 | knowledge | `freshservice_solution`, `freshservice_announcement` |
 | catalog | `freshservice_catalog`, `freshservice_onboarding` (+ offboarding) |
 | projects | `freshservice_project` (new-gen `/pm` and legacy) |
