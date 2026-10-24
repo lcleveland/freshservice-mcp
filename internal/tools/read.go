@@ -141,6 +141,16 @@ func (d Deps) read(ctx context.Context, tool string, v View, in Input) (any, err
 		return nil, err
 	}
 	out = unwrap(out)
+	// A POST read pages by token with a fixed page size, so limit is applied
+	// here; the token would skip the items cut, so it is dropped with them.
+	if m, ok := out.(map[string]any); ok && v.Body && in.Limit > 0 {
+		if l, ok := m["data"].([]any); ok && len(l) > in.Limit {
+			m["data"] = l[:in.Limit]
+			delete(m, "next_page_token")
+			m["_truncation"] = map[string]any{"returned": in.Limit, "of": len(l),
+				"note": "cut at limit, so there is no next_page_token: omit limit to page through, or narrow since/before and filters"}
+		}
+	}
 	if m, ok := out.(map[string]any); ok && v.Link != "" {
 		if p, err := fill(v.Link, in.ID, url.Values{}); err == nil {
 			m["url"] = strings.TrimRight(d.Client.BaseURL(), "/") + p

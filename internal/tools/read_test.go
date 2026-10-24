@@ -216,6 +216,20 @@ func TestAuditLogPostsBody(t *testing.T) {
 	if isErr || out["next_page_token"] != "t2" || !strings.HasPrefix(got, "POST /api/v2/audit_logs {") || !strings.Contains(got, `"next_page_token":"t1"`) {
 		t.Fatalf("audit_log: %s %v %s", text, out, got)
 	}
+	// limit cuts the fixed-size page and drops the token, which would skip the cut items.
+	out, isErr, text = call(t, cs, "freshservice_agent", map[string]any{"action": "audit_log", "limit": 0,
+		"body": map[string]any{"since": "2026-10-01T00:00:00Z", "before": "2026-10-20T00:00:00Z"}})
+	if isErr || out["next_page_token"] != "t2" {
+		t.Fatalf("no limit: %s %v", text, out)
+	}
+	cs = session(t, nil, func(w http.ResponseWriter, r *http.Request) {
+		jsonOK(w, `{"data":[{"n":1},{"n":2},{"n":3}],"next_page_token":"t2"}`)
+	})
+	out, isErr, text = call(t, cs, "freshservice_agent", map[string]any{"action": "audit_log", "limit": 2,
+		"body": map[string]any{"since": "2026-10-01T00:00:00Z", "before": "2026-10-20T00:00:00Z"}})
+	if d, _ := out["data"].([]any); isErr || len(d) != 2 || out["next_page_token"] != nil || out["_truncation"] == nil {
+		t.Fatalf("limit 2: %s %v", text, out)
+	}
 }
 
 func TestAttachmentDownload(t *testing.T) {
