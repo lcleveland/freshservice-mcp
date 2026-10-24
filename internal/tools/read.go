@@ -157,7 +157,15 @@ func (d Deps) read(ctx context.Context, tool string, v View, in Input) (any, err
 		}
 	}
 	if in.Fields != "" {
-		out = project(out, strings.Split(in.Fields, ","))
+		fs := strings.Split(in.Fields, ",")
+		// A POST read's entries sit in data beside its page token: pick fields per entry.
+		if m, ok := out.(map[string]any); ok && v.Body {
+			if l, ok := m["data"].([]any); ok {
+				m["data"] = project(l, fs)
+				return capBytes(m), nil
+			}
+		}
+		out = project(out, fs)
 	}
 	return capBytes(out), nil
 }

@@ -230,6 +230,12 @@ func TestAuditLogPostsBody(t *testing.T) {
 	if d, _ := out["data"].([]any); isErr || len(d) != 2 || out["next_page_token"] != nil || out["_truncation"] == nil {
 		t.Fatalf("limit 2: %s %v", text, out)
 	}
+	// fields picks per entry and keeps the page token.
+	out, isErr, text = call(t, cs, "freshservice_agent", map[string]any{"action": "audit_log", "fields": "n",
+		"body": map[string]any{"since": "2026-10-01T00:00:00Z", "before": "2026-10-20T00:00:00Z"}})
+	if d, _ := out["data"].([]any); isErr || len(d) != 3 || out["next_page_token"] != "t2" || d[0].(map[string]any)["n"] != 1.0 {
+		t.Fatalf("fields: %s %v", text, out)
+	}
 }
 
 func TestAttachmentDownload(t *testing.T) {
