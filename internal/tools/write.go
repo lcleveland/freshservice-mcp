@@ -158,6 +158,9 @@ func writeBody(v View, body any) (map[string]any, error) {
 			return nil, fmt.Errorf("body needs %s", strings.Join(v.Require, ", "))
 		}
 	}
+	if v.Wrap != "" && m != nil && !has(m, v.Wrap) {
+		return map[string]any{v.Wrap: maps.Clone(m)}, nil
+	}
 	return maps.Clone(m), nil
 }
 

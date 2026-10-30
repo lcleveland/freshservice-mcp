@@ -229,3 +229,22 @@ func TestAdminAgentWrites(t *testing.T) {
 		t.Errorf("plain update: %s %s %s", text, f.method, f.path)
 	}
 }
+
+func TestAlertNoteWrapped(t *testing.T) {
+	f := &fakeWrites{}
+	cs := session(t, allow("ops"), f.handler)
+	note := map[string]any{"description": "<p>hi</p>"}
+	if _, isErr, text := call(t, cs, "freshservice_alert", map[string]any{"action": "create_note", "id": 5, "reason": "r", "body": note}); isErr || f.path != "/api/v2/ams/alerts/5/notes" {
+		t.Fatalf("create_note: %s %s", text, f.path)
+	}
+	if n, _ := f.body["alert_note"].(map[string]any); n["description"] != "<p>hi</p>" || len(f.body) != 1 {
+		t.Errorf("create_note body = %v", f.body)
+	}
+	// an already wrapped body (e.g. through freshservice_api) is not wrapped twice
+	if _, isErr, text := call(t, cs, "freshservice_alert", map[string]any{"action": "update_note", "id": 5, "params": map[string]any{"note_id": 9}, "reason": "r", "body": map[string]any{"alert_note": note}}); isErr || f.path != "/api/v2/ams/alerts/5/notes/9" {
+		t.Fatalf("update_note: %s %s", text, f.path)
+	}
+	if n, _ := f.body["alert_note"].(map[string]any); n["description"] != "<p>hi</p>" {
+		t.Errorf("update_note body = %v", f.body)
+	}
+}

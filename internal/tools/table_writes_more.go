@@ -202,8 +202,8 @@ var moreWrites = map[string][]View{
 		{Action: "resolve", Help: "resolve alert id.", Method: "PUT", Path: "/api/v2/ams/alerts/{id}/resolve", Capability: "ops"},
 		{Action: "suppress", Help: "suppress alert id; body {suppress_until}.", Method: "PUT", Path: "/api/v2/ams/alerts/{id}/suppress", Capability: "ops", Body: true},
 		{Action: "unsuppress", Help: "stop suppressing alert id.", Method: "PUT", Path: "/api/v2/ams/alerts/{id}/unsuppress", Capability: "ops"},
-		{Action: "create_note", Help: "add a note to alert id; body {content}.", Method: "POST", Path: "/api/v2/ams/alerts/{id}/notes", Capability: "ops", Body: true},
-		{Action: "update_note", Help: "change note params.note_id of alert id.", Method: "PUT", Path: "/api/v2/ams/alerts/{id}/notes/{note_id}", Capability: "ops", Body: true},
+		{Action: "create_note", Help: "add a note to alert id; body {description} (HTML).", Method: "POST", Path: "/api/v2/ams/alerts/{id}/notes", Capability: "ops", Body: true, Wrap: "alert_note"},
+		{Action: "update_note", Help: "change note params.note_id of alert id; body {description} (HTML).", Method: "PUT", Path: "/api/v2/ams/alerts/{id}/notes/{note_id}", Capability: "ops", Body: true, Wrap: "alert_note"},
 	},
 	"freshservice_journey": {
 		{Action: "create_request", Help: "start a journey; body {config_id, requested_for, data: {...}} per config_fields.", Method: "POST", Path: "/api/v2/journeys/requests", Capability: "ops", Body: true},
