@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"testing"
@@ -135,6 +136,26 @@ func TestFilterQuery(t *testing.T) {
 	}
 	if _, isErr, _ := call(t, cs, "freshservice_ticket", map[string]any{"action": "filter", "query": strings.Repeat("a", 513)}); !isErr {
 		t.Error("over-long query accepted")
+	}
+}
+
+func TestAssetSearchQuery(t *testing.T) {
+	var q string
+	cs := session(t, nil, func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/api/v2/workspaces" {
+			jsonOK(w, `{"workspaces":[{"id":2,"name":"IT","primary":true}]}`)
+			return
+		}
+		if r.URL.Query().Has("search") {
+			q = r.URL.RawQuery
+		}
+		jsonOK(w, `{"assets":[]}`)
+	})
+	if _, isErr, text := call(t, cs, "freshservice_asset", map[string]any{"action": "search", "params": map[string]any{"search": "name:'pc1'"}}); isErr {
+		t.Fatal(text)
+	}
+	if v, _ := url.ParseQuery(q); v.Get("search") != "name:'pc1'" || v.Has("per_page") || v.Get("page") != "1" {
+		t.Errorf("asset search query = %s", q)
 	}
 }
 

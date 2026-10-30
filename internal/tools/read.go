@@ -18,7 +18,7 @@ import (
 const (
 	defaultLimit = 500
 	perPage      = 100   // Freshservice's maximum
-	filterPage   = 30    // the asset filter's fixed page size
+	filterPage   = 30    // the asset filter's and search's fixed page size
 	filterWindow = 10000 // ticketFilter returns nothing past its first 10,000 matches
 	ticketFilter = "/api/v2/tickets/filter"
 	maxQuery     = 512      // Freshservice's filter query limit
@@ -337,9 +337,9 @@ pages:
 }
 
 // pageSize asks for 100 per page and returns the page size, except on the
-// asset filter, which rejects per_page and pages by 30.
+// asset filter and search, which reject per_page and page by 30.
 func pageSize(q url.Values) int {
-	if q.Has("filter") {
+	if q.Has("filter") || q.Has("search") {
 		return filterPage
 	}
 	q.Set("per_page", strconv.Itoa(perPage))
